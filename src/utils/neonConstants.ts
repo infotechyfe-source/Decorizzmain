@@ -75,4 +75,14 @@ export const FONTS_META: { label: string; family: string; uppercase?: boolean; l
   { label: 'Retroslogy', family: '"Lobster", cursive' },
 ];
 
-export const NEON_SWATCHES = ['#ffffff', '#FF2ec4', '#39ff14', '#00e5ff', '#1e4bff', '#fff700', '#ff9f00', '#ff1a1a', '#9b5cff', '#faf9f6'];
+export const NEON_SWATCHES = ['#ffffff',
+                          '#faf9f6', // Ice White
+                          '#fff700', //Yellow
+                          '#ff9f00', //Orange
+                          '#ff1a1a', //Red
+                          '#FF2ec4', //Pink
+                          '#f425ee' , //Purple
+                          '#39ff14', // Green
+                          '#00e5ff', //Cyan
+                          '#1e4bff' //Blue
+                        ];

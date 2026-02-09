@@ -528,13 +528,11 @@ export default function ShopPage() {
       />
       <Navbar />
       <HeroCarousel images={heroImages || []} loading={heroLoading} variant="shop" />
-      <section className=" lg:mt-8">
-        <h1 className="text-center custom-heading">
+
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+     <h1 className="text-center custom-heading">
           Shop All <span className="text-gradient-teal">Frames</span>
         </h1>
-      </section>
-      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-
         {/* Header */}
         {/* HERO HEADER */}
         {/* <section className=" mx-auto sm:px-6 mb-12">

@@ -680,199 +680,199 @@ export default function HomePage() {
         </div>
       </section>
 
-     {/* Watch & Buy Section - Instagram Reels Style */}
-<section className="section-watch relative py-12 md:py-16 bg-gray-50" aria-label="Watch and Buy">
-  {/* Header */}
-  <div className="text-center mb-8 md:mb-12 px-4">
-    <h2 className="section-title-themed font-extrabold mb-3 text-3xl md:text-4xl inline-block">
-      <span className="text-brand">Watch</span>
-      <span className="text-accent"> & Buy</span>
-    </h2>
-    <p className="section-subtitle text-gray-600 text-sm md:text-base">
-      See frames in action and shop the look
-    </p>
-  </div>
-
-  {loading ? (
-    <>
-      {/* Desktop skeleton */}
-      <div className="hidden md:flex justify-center max-w-7xl mx-auto px-4">
-        <div className="grid grid-cols-3 lg:grid-cols-5 gap-6 w-full">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div
-              key={i}
-              className="bg-gray-200 animate-pulse rounded-2xl overflow-hidden"
-              style={{ aspectRatio: '9/16' }}
-            />
-          ))}
+      {/* Watch & Buy Section - Instagram Reels Style */}
+      <section className="section-watch relative py-12 md:py-16 bg-gray-50" aria-label="Watch and Buy">
+        {/* Header */}
+        <div className="text-center mb-8 md:mb-12 px-4">
+          <h2 className="section-title-themed font-extrabold mb-3 text-3xl md:text-4xl inline-block">
+            <span className="text-brand">Watch</span>
+            <span className="text-accent"> & Buy</span>
+          </h2>
+          <p className="section-subtitle text-gray-600 text-sm md:text-base">
+            See frames in action and shop the look
+          </p>
         </div>
-      </div>
 
-      {/* Mobile skeleton */}
-      <div className="md:hidden">
-        <div className="flex gap-4 overflow-x-auto px-4 pb-4 snap-x snap-mandatory scrollbar-hide">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="flex-shrink-0 w-36 bg-gray-200 animate-pulse rounded-2xl overflow-hidden snap-start"
-              style={{ aspectRatio: '9/16' }}
-            />
-          ))}
+        {loading ? (
+          <>
+            {/* Desktop skeleton */}
+            <div className="hidden md:flex justify-center max-w-7xl mx-auto px-4">
+              <div className="grid grid-cols-3 lg:grid-cols-5 gap-6 w-full">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="bg-gray-200 animate-pulse rounded-2xl overflow-hidden"
+                    style={{ aspectRatio: '9/16' }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Mobile skeleton */}
+            <div className="md:hidden">
+              <div className="flex gap-4 overflow-x-auto px-4 pb-4 snap-x snap-mandatory scrollbar-hide">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex-shrink-0 w-36 bg-gray-200 animate-pulse rounded-2xl overflow-hidden snap-start"
+                    style={{ aspectRatio: '9/16' }}
+                  />
+                ))}
+              </div>
+            </div>
+          </>
+        ) : watchVideos.length > 0 ? (
+          <>
+            {/* Desktop Grid */}
+            <div className="hidden md:flex justify-center max-w-7xl mx-auto px-4">
+              <div className="grid grid-cols-3 lg:grid-cols-5 gap-6 w-full">
+                {watchVideos.slice(0, 5).map((v) => {
+                  const isYT = isYouTubeUrl(v.url || '');
+                  const ytId = getYouTubeId(v.url || '');
+                  const isDrive = isGoogleDriveUrl(v.url || '');
+                  const driveStream = isDrive ? getDriveDirectVideoUrl(v.url || '') : '';
+
+                  return (
+                    <Link
+                      key={v.id}
+                      to="/shop-by-videos"
+                      className="group relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:scale-105 transition-transform duration-300 ease-out bg-black"
+                      style={{ aspectRatio: '9/16' }}
+                    >
+                      {isYT && ytId ? (
+                        <iframe
+                          src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&showinfo=0&rel=0&modestbranding=1`}
+                          className="w-full h-full object-cover pointer-events-none rounded-2xl"
+                          allow="autoplay; encrypted-media"
+                          allowFullScreen
+                          title={v.title}
+                        />
+                      ) : isDrive && driveStream ? (
+                        <video
+                          src={driveStream}
+                          className="w-full h-full object-cover pointer-events-none rounded-2xl"
+                          autoPlay
+                          muted
+                          loop
+                          playsInline
+                          preload="none"
+                        />
+                      ) : (
+                        <video
+                          src={v.url}
+                          className="w-full h-full object-cover pointer-events-none rounded-2xl"
+                          autoPlay
+                          muted
+                          loop
+                          playsInline
+                          preload="none"
+                        />
+                      )}
+
+                      {/* Gradient overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent rounded-2xl pointer-events-none" />
+
+                      {/* Play button */}
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                        <div className="w-14 h-14 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center">
+                          <Play className="w-6 h-6 text-white ml-1" />
+                        </div>
+                      </div>
+
+                      {/* Title */}
+                      <div className="absolute bottom-3 left-3 right-3">
+                        <p className="text-white text-sm font-semibold line-clamp-2">{v.title}</p>
+                      </div>
+
+                      {/* Reels icon */}
+                      <div className="absolute top-3 right-3">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="white" className="opacity-80">
+                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l6-5-6-5v10z" />
+                        </svg>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Mobile Carousel */}
+            <div className="md:hidden px-4">
+              <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide">
+                {watchVideos.map((v) => {
+                  const isYT = isYouTubeUrl(v.url || '');
+                  const ytId = getYouTubeId(v.url || '');
+                  const isDrive = isGoogleDriveUrl(v.url || '');
+                  const driveStream = isDrive ? getDriveDirectVideoUrl(v.url || '') : '';
+
+                  return (
+                    <Link
+                      key={v.id}
+                      to="/shop-by-videos"
+                      className="flex-shrink-0 w-64 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-transform duration-300 transform hover:scale-105 snap-start relative bg-black"
+                      style={{ aspectRatio: '9/16' }}
+                    >
+                      {isYT && ytId ? (
+                        <iframe
+                          src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&showinfo=0&rel=0&modestbranding=1`}
+                          className="w-full h-full object-cover pointer-events-none rounded-2xl"
+                          allow="autoplay; encrypted-media"
+                          allowFullScreen
+                          title={v.title}
+                        />
+                      ) : isDrive && driveStream ? (
+                        <video
+                          src={driveStream}
+                          className="w-full h-full object-cover pointer-events-none rounded-2xl"
+                          autoPlay
+                          muted
+                          loop
+                          playsInline
+                          preload="none"
+                        />
+                      ) : (
+                        <video
+                          src={v.url}
+                          className="w-full h-full object-cover pointer-events-none rounded-2xl"
+                          autoPlay
+                          muted
+                          loop
+                          playsInline
+                          preload="none"
+                        />
+                      )}
+
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent rounded-2xl pointer-events-none" />
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                          <Play className="w-5 h-5 text-white" />
+                        </div>
+                      </div>
+
+                      <div className="absolute bottom-3 left-3 right-3">
+                        <p className="text-white text-xs font-semibold line-clamp-2">{v.title}</p>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          </>
+        ) : (
+          <p className="text-center text-gray-500">No videos available yet.</p>
+        )}
+
+        {/* View All Button */}
+        <div className="text-center mt-8 md:mt-10 px-4">
+          <Link
+            to="/shop-by-videos"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white font-semibold hover:scale-105 transition-transform shadow-lg bg-teal-600"
+          >
+            <Play className="w-4 h-4" />
+            View All Reels
+          </Link>
         </div>
-      </div>
-    </>
-  ) : watchVideos.length > 0 ? (
-    <>
-      {/* Desktop Grid */}
-      <div className="hidden md:flex justify-center max-w-7xl mx-auto px-4">
-        <div className="grid grid-cols-3 lg:grid-cols-5 gap-6 w-full">
-          {watchVideos.slice(0, 5).map((v) => {
-            const isYT = isYouTubeUrl(v.url || '');
-            const ytId = getYouTubeId(v.url || '');
-            const isDrive = isGoogleDriveUrl(v.url || '');
-            const driveStream = isDrive ? getDriveDirectVideoUrl(v.url || '') : '';
-
-            return (
-              <Link
-                key={v.id}
-                to="/shop-by-videos"
-                className="group relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:scale-105 transition-transform duration-300 ease-out bg-black"
-                style={{ aspectRatio: '9/16' }}
-              >
-                {isYT && ytId ? (
-                  <iframe
-                    src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&showinfo=0&rel=0&modestbranding=1`}
-                    className="w-full h-full object-cover pointer-events-none rounded-2xl"
-                    allow="autoplay; encrypted-media"
-                    allowFullScreen
-                    title={v.title}
-                  />
-                ) : isDrive && driveStream ? (
-                  <video
-                    src={driveStream}
-                    className="w-full h-full object-cover pointer-events-none rounded-2xl"
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload="none"
-                  />
-                ) : (
-                  <video
-                    src={v.url}
-                    className="w-full h-full object-cover pointer-events-none rounded-2xl"
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload="none"
-                  />
-                )}
-
-                {/* Gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent rounded-2xl pointer-events-none" />
-
-                {/* Play button */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                  <div className="w-14 h-14 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center">
-                    <Play className="w-6 h-6 text-white ml-1" />
-                  </div>
-                </div>
-
-                {/* Title */}
-                <div className="absolute bottom-3 left-3 right-3">
-                  <p className="text-white text-sm font-semibold line-clamp-2">{v.title}</p>
-                </div>
-
-                {/* Reels icon */}
-                <div className="absolute top-3 right-3">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="white" className="opacity-80">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l6-5-6-5v10z" />
-                  </svg>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Mobile Carousel */}
-      <div className="md:hidden px-4">
-        <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide">
-          {watchVideos.map((v) => {
-            const isYT = isYouTubeUrl(v.url || '');
-            const ytId = getYouTubeId(v.url || '');
-            const isDrive = isGoogleDriveUrl(v.url || '');
-            const driveStream = isDrive ? getDriveDirectVideoUrl(v.url || '') : '';
-
-            return (
-              <Link
-                key={v.id}
-                to="/shop-by-videos"
-                className="flex-shrink-0 w-64 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-transform duration-300 transform hover:scale-105 snap-start relative bg-black"
-                style={{ aspectRatio: '9/16' }}
-              >
-                {isYT && ytId ? (
-                  <iframe
-                    src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&showinfo=0&rel=0&modestbranding=1`}
-                    className="w-full h-full object-cover pointer-events-none rounded-2xl"
-                    allow="autoplay; encrypted-media"
-                    allowFullScreen
-                    title={v.title}
-                  />
-                ) : isDrive && driveStream ? (
-                  <video
-                    src={driveStream}
-                    className="w-full h-full object-cover pointer-events-none rounded-2xl"
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload="none"
-                  />
-                ) : (
-                  <video
-                    src={v.url}
-                    className="w-full h-full object-cover pointer-events-none rounded-2xl"
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload="none"
-                  />
-                )}
-
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent rounded-2xl pointer-events-none" />
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                    <Play className="w-5 h-5 text-white" />
-                  </div>
-                </div>
-
-                <div className="absolute bottom-3 left-3 right-3">
-                  <p className="text-white text-xs font-semibold line-clamp-2">{v.title}</p>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-    </>
-  ) : (
-    <p className="text-center text-gray-500">No videos available yet.</p>
-  )}
-
-  {/* View All Button */}
-  <div className="text-center mt-8 md:mt-10 px-4">
-    <Link
-      to="/shop-by-videos"
-      className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white font-semibold hover:scale-105 transition-transform shadow-lg bg-teal-600"
-    >
-      <Play className="w-4 h-4" />
-      View All Reels
-    </Link>
-  </div>
-</section>
+      </section>
 
 
       {/* Budget Finds */}
@@ -1275,7 +1275,6 @@ export default function HomePage() {
       }
 
       <Footer />
-
     </main >
   );
 }

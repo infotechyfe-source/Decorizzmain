@@ -48,15 +48,15 @@ export default function AdminProducts() {
 
     const NEON_COLORS = [
         { name: "White", hex: "#ffffff" },
-        { name: "Pink", hex: "#ff2ec4" },
-        { name: "Green", hex: "#39ff14" },
-        { name: "Cyan", hex: "#00e5ff" },
-        { name: "Blue", hex: "#1e4bff" },
+        { name: "Ice", hex: "#faf9f6" },
         { name: "Yellow", hex: "#fff700" },
         { name: "Orange", hex: "#ff9f00" },
         { name: "Red", hex: "#ff1a1a" },
-        { name: "Purple", hex: "#9b5cff" },
-        { name: "Ice", hex: "#e9f7ff" }
+        { name: "Pink", hex: "#ff2ec4" },
+        { name: "Purple", hex: "#f425ee" },
+        { name: "Green", hex: "#39ff14" },
+        { name: "Cyan", hex: "#00e5ff" },
+        { name: "Blue", hex: "#1e4bff" },
     ];
     const ACRYLIC_LIGHTS = [
         { key: 'nonLight', label: 'Non Light' },
@@ -549,8 +549,6 @@ export default function AdminProducts() {
         }));
     };
 
-
-
     return (
         <div className="min-h-screen bg-gray-100 flex">
             {/* Admin Sidebar */}
@@ -1016,6 +1014,7 @@ export default function AdminProducts() {
                                                     <option value="2-Set">2-Set</option>
                                                     <option value="3-Set">3-Set</option>
                                                     <option value="Square">Square</option>
+                                                     <option value="Valentine">Valentine's</option>
                                                 </select>
                                             </div>
 

@@ -4116,6 +4116,17 @@ body {
   }
 }
 
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  25% { transform: scale(1.2); }
+  50% { transform: scale(1); }
+  75% { transform: scale(1.2); }
+}
+
+.animate-heartbeat {
+  animation: heartbeat 1.5s infinite;
+}
+
 
 /* -------------------------------
    MOBILE SMALLER BEST SELLER CARDS

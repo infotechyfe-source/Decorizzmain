@@ -405,24 +405,24 @@ export default function ProductDetailPage() {
       });
     }
 
-    // 2. Add Lighting specific images as thumbnails
-    const neonVariationImages = product.neon_images_by_color || product.neonImagesByColor;
-    if (islighting && neonVariationImages) {
-      Object.entries(neonVariationImages).forEach(([hex, url]) => {
-        if (url) {
-          items.push({
-            src: url as string,
-            alt: `Color ${hex}`,
-            onClick: () => {
-              userSelectedRef.current = true;
-              setSelectedImage(url as string);
-              setSelectedColor(hex);
-            },
-            selected: activeImage === url || selectedImage === url,
-          });
-        }
-      });
-    }
+    // // 2. Add Lighting specific images as thumbnails
+    // const neonVariationImages = product.neon_images_by_color || product.neonImagesByColor;
+    // if (islighting && neonVariationImages) {
+    //   Object.entries(neonVariationImages).forEach(([hex, url]) => {
+    //     if (url) {
+    //       items.push({
+    //         src: url as string,
+    //         alt: `Color ${hex}`,
+    //         onClick: () => {
+    //           userSelectedRef.current = true;
+    //           setSelectedImage(url as string);
+    //           setSelectedColor(hex);
+    //         },
+    //         selected: activeImage === url || selectedImage === url,
+    //       });
+    //     }
+    //   });
+    // }
 
     let layoutImage = VerticalImg; // Default to vertical image
     if (product.layout) {
@@ -604,6 +604,9 @@ export default function ProductDetailPage() {
     }
   }, [productData, categoryParam]);
 
+  // Utility to normalize strings (lowercase, remove special chars)
+  const normalize = (str: string) => str.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+
   // Sync related/best/budget when data or product changes
   const { relatedProducts, bestProducts } = useMemo(() => {
     if (!product || allProducts.length === 0) {
@@ -611,77 +614,70 @@ export default function ProductDetailPage() {
     }
 
     const currentId = product.id;
-    const currentMaterial = (product.material || '').toLowerCase();
-    const currentFormat = (product.format || '').toLowerCase();
+    const currentMaterial = normalize(product.material || '');
+    const currentFormat = normalize(product.format || '');
+    const currentSubsection = normalize(product.subsection || '');
 
-    // Determine product type keywords based on available fields
+    // Determine product type keywords
     let typeKeywords: string[] = [];
     if (currentMaterial) typeKeywords.push(currentMaterial);
     if (currentFormat) typeKeywords.push(currentFormat);
 
     // Add keywords based on category/layout if explicit fields are missing
     if (typeKeywords.length === 0) {
-      const pLayout = (product.layout || '').toLowerCase();
-      const pCat = (product.category || '').toLowerCase();
+      const pLayout = normalize(product.layout || '');
+      const pCat = normalize(product.category || '');
       if (pLayout.includes('acrylic') || pCat.includes('acrylic')) typeKeywords.push('acrylic');
       else if (pLayout.includes('neon') || pCat.includes('neon')) typeKeywords.push('neon');
       else if (pLayout.includes('canvas') || pCat.includes('canvas')) typeKeywords.push('canvas');
       else if (pLayout.includes('frame') || pCat.includes('frame')) typeKeywords.push('frame');
     }
 
-    // Determine strict product type based on Admin panel options
+    // Determine strict product type
     const isNeon = currentFormat === 'neon' || currentMaterial === 'neon' || typeKeywords.includes('neon');
     const isAcrylic = currentFormat === 'acrylic' || currentMaterial === 'acrylic' || typeKeywords.includes('acrylic');
 
-    // Filter function to get products of same strict type
     const filterByType = (products: any[]) => {
-      // DEBUG:
-
-      const filtered = products.filter((p: any) => {
+      return products.filter((p: any) => {
         if (p.id === currentId) return false;
 
-        const pMaterial = (p.material || '').toLowerCase();
-        const pFormat = (p.format || '').toLowerCase();
-        const pCat = (p.category || '').toLowerCase();
-        const pLayout = (p.layout || '').toLowerCase();
+        const pMaterial = normalize(p.material || '');
+        const pFormat = normalize(p.format || '');
+        const pCat = normalize(p.category || '');
+        const pLayout = normalize(p.layout || '');
+        const pSubsection = normalize(p.subsection || '');
 
-        // 1. Neon Logic
+        // 1️⃣ Subsection match (Valentine's or any other)
+        if (currentSubsection) {
+          return pSubsection === currentSubsection;
+        }
+
+        // 2️⃣ Neon Logic
         if (isNeon) {
           return pFormat === 'neon' || pMaterial === 'neon' || pCat.includes('neon') || pLayout.includes('neon');
         }
 
-        // 2. Acrylic Logic
+        // 3️⃣ Acrylic Logic
         if (isAcrylic) {
           return pFormat === 'acrylic' || pMaterial === 'acrylic' || pCat.includes('acrylic') || pLayout.includes('acrylic');
         }
 
-        // 3. Fallback: Match Format exactly (Frame with Frame, Canvas with Canvas)
+        // 4️⃣ Fallback: match format
         if (currentFormat) {
           return pFormat === currentFormat;
         }
 
-        // 4. Last resort: Match Category keywords if format is missing
-        // Try to match 'acrylic' or 'neon' from keywords
-        // These checks are now integrated into the primary isAcrylic and isNeon blocks above.
-        // if (isAcrylic && (pCat.includes('acrylic') || pLayout.includes('acrylic'))) return true;
-        // if (isNeon && (pCat.includes('neon') || pLayout.includes('neon'))) return true;
-
         return false;
       });
-
-      console.log(`[DEBUG] filterByType result: ${filtered.length} matches`);
-      return filtered;
     };
 
     return {
       relatedProducts: filterByType(allProducts).slice(0, 12),
-      // Best/Budget should just show global items, not forced to match type
       bestProducts: bestSellers.filter(p => p.id !== currentId).slice(0, 12)
     };
   }, [product, allProducts, bestSellers, budgetFinds]);
 
   const loading = productLoading;
-
 
   // Check if product is in wishlist
   const fetchWishlistStatus = async () => {
@@ -1092,6 +1088,14 @@ export default function ProductDetailPage() {
     );
   }
 
+  // Check if today is before or on Valentine's Day (Feb 14)
+  const isValentinesPeriod = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const valentinesStart = new Date(`${year}-02-01`); // start of Feb
+    const valentinesEnd = new Date(`${year}-02-14`);   // Feb 14
+    return today >= valentinesStart && today <= valentinesEnd;
+  };
   return (
     <div className="min-h-screen content-offset"
       style={{ backgroundColor: '#fafaf9' }}>
@@ -1154,7 +1158,7 @@ export default function ProductDetailPage() {
           <div className="lg:sticky lg:top-[120px] lg:self-start lg:h-auto">
             {/* Image Box (Sticky height container) */}
             <div
-              className={`soft-card lg:rounded-2xl p-4 ${isMobile ? 'h-auto' : 'h-auto'} w-full flex-none bg-white lg:bg-transparent shadow-md lg:shadow-lg lg:border border-gray-100`}
+              className={`soft-card lg:rounded-2xl p-2 ${isMobile ? 'h-auto' : 'h-auto'} w-full flex-none bg-white lg:bg-transparent shadow-md lg:shadow-lg lg:border border-gray-100`}
             >
               {isMobile && <div style={{ height: '25vh' }} />}
 
@@ -1183,7 +1187,6 @@ export default function ProductDetailPage() {
                     willChange: "transform",
                   }}
                 >
-
                   {/* 🔥 Image + Watermark Added Here */}
                   <div
                     className="relative w-full h-full image-protected"
@@ -1204,66 +1207,68 @@ export default function ProductDetailPage() {
 
                 </div>
               </div>
-              {/* --- THUMBNAIL STRIP --- */}
-              <div className="relative overflow-hidden px-2 sm:px-4 mt-6">
-                {/* Left Arrow - Hidden on mobile */}
-                <button
-                  onClick={() => scrollThumbs("left")}
-                  disabled={!canScrollLeft}
-                  className={`hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 z-50 p-1.5 rounded-full border transition-all items-center justify-center shadow-md
-                    ${!canScrollLeft ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:bg-gray-50 hover:scale-110'}
-                  `}
-                  style={{ borderColor: "#e5e7eb", backgroundColor: "rgba(255,255,255,0.95)", color: "#1f2937" }}
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
 
-                <div
-                  ref={thumbStripRef}
-                  className="thumbs-strip pb-1 pt-1 overflow-x-auto scrollbar-hide"
-                  style={{ scrollBehavior: 'smooth' }}
-                  // wheel handled via native event listener
-                  onKeyDown={handleThumbKeyDown}
-                  onTouchStart={handleThumbTouchStart}
-                  onTouchMove={handleThumbTouchMove}
-                  onTouchEnd={handleThumbTouchEnd}
-                >
-                  {/* Scrollable thumbnails */}
-                  <div
-                    className="thumb-slider flex gap-3 px-1 w-max mx-auto"
+              {/* --- THUMBNAIL STRIP (hide for neon) --- */}
+              {!islighting && optimizedThumbItems.length > 0 && (
+                <div className="relative overflow-hidden px-2 sm:px-4 mt-6">
+                  {/* Left Arrow */}
+                  <button
+                    onClick={() => scrollThumbs("left")}
+                    disabled={!canScrollLeft}
+                    className={`hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 z-50 p-1.5 rounded-full border transition-all items-center justify-center shadow-md
+        ${!canScrollLeft ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:bg-gray-50 hover:scale-110'}
+      `}
+                    style={{ borderColor: "#e5e7eb", backgroundColor: "rgba(255,255,255,0.95)", color: "#1f2937" }}
                   >
-                    {/* All thumbnails - responsive sizing */}
-                    {optimizedThumbItems.map((item, index) => (
-                      <div
-                        key={index}
-                        className={`thumb-item w-14 h-16 sm:w-20 sm:h-24 rounded-lg border-2 cursor-pointer overflow-hidden shrink-0 transition-all duration-300
-                        ${item.selected ? "border-teal-600 shadow-md scale-105" : "border-gray-100 opacity-60 hover:opacity-100 hover:border-teal-300"}`}
-                        onClick={() => selectByIndex(index)}
-                        onContextMenu={(e) => e.preventDefault()}
-                      >
-                        <ImageWithFallback src={item.src} alt={item.alt} className="w-full h-full object-cover" loading="lazy" />
-                        {item.label && (
-                          <span className="hidden sm:block absolute bottom-1 left-1 text-[10px] px-2 py-0.5 rounded bg-black/60 text-white">
-                            {item.label}
-                          </span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
 
-                {/* Right Arrow - Hidden on mobile */}
-                <button
-                  onClick={() => scrollThumbs("right")}
-                  disabled={!canScrollRight}
-                  className={`hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 z-50 p-1.5 rounded-full border transition-all items-center justify-center shadow-md
-                    ${!canScrollRight ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:bg-gray-50 hover:scale-110'}
-                  `}
-                  style={{ borderColor: "#e5e7eb", backgroundColor: "rgba(255,255,255,0.95)", color: "#1f2937" }}
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              </div>
+                  <div
+                    ref={thumbStripRef}
+                    className="thumbs-strip pb-1 pt-1 overflow-x-auto scrollbar-hide"
+                    style={{ scrollBehavior: 'smooth' }}
+                    onKeyDown={handleThumbKeyDown}
+                    onTouchStart={handleThumbTouchStart}
+                    onTouchMove={handleThumbTouchMove}
+                    onTouchEnd={handleThumbTouchEnd}
+                  >
+                    <div className="thumb-slider flex gap-3 px-1 w-max mx-auto">
+                      {optimizedThumbItems.map((item, index) => (
+                        <div
+                          key={index}
+                          className={`thumb-item w-14 h-16 sm:w-20 sm:h-24 rounded-lg border-2 cursor-pointer overflow-hidden shrink-0 transition-all duration-300
+              ${item.selected
+                              ? "border-teal-600 shadow-md scale-105"
+                              : "border-gray-100 opacity-60 hover:opacity-100 hover:border-teal-300"
+                            }`}
+                          onClick={() => selectByIndex(index)}
+                          onContextMenu={(e) => e.preventDefault()}
+                        >
+                          <ImageWithFallback
+                            src={item.src}
+                            alt={item.alt}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Right Arrow */}
+                  <button
+                    onClick={() => scrollThumbs("right")}
+                    disabled={!canScrollRight}
+                    className={`hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 z-50 p-1.5 rounded-full border transition-all items-center justify-center shadow-md
+        ${!canScrollRight ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:bg-gray-50 hover:scale-110'}
+      `}
+                    style={{ borderColor: "#e5e7eb", backgroundColor: "rgba(255,255,255,0.95)", color: "#1f2937" }}
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
+              )}
+
             </div>
           </div>
 
@@ -1451,7 +1456,17 @@ export default function ProductDetailPage() {
                           </button>
                         ))
                       ) : (
-                        ['#ffffff', '#FF2ec4', '#39ff14', '#00e5ff', '#1e4bff', '#fff700', '#ff9f00', '#ff1a1a', '#9b5cff', '#faf9f6'].map((hex) => (
+                        ['#ffffff', //white
+                          '#faf9f6', // Ice White
+                          '#fff700', //Yellow
+                          '#ff9f00', //Orange
+                          '#ff1a1a', //Red
+                          '#FF2ec4', //Pink
+                          '#f425ee', //Purple
+                          '#39ff14', // Green
+                          '#00e5ff', //Cyan
+                          '#1e4bff', //Blue
+                        ].map((hex) => (
                           <button
                             key={hex}
                             onClick={() => setSelectedColor(hex.toLowerCase())}
@@ -1562,7 +1577,6 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
-
             {/* ART STYLE for custom canvas (if not already in options) */}
             {product.isCustomCanvas && !isCustomSize && (
               <div className="mt-8">
@@ -1621,7 +1635,6 @@ export default function ProductDetailPage() {
               </details>
             </div>
 
-
             {/* Specifications */}
             {/* {product.material && (
               <div className="border-t border-gray-200 pt-6">
@@ -1666,40 +1679,87 @@ export default function ProductDetailPage() {
         )}
 
 
-        {/* Related Products */}
-        {relatedProducts.length > 0 && (
-          <div className="mt-16 rounded-lg p-8 lg:p-12 shadow-sm" style={{
-            background: "linear-gradient(135deg, #ffffff 0%, #f9fafb 100%)",
-            border: "1px solid #f1f5f9"
-          }}>
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl lg:text-3xl font-black text-gray-900 tracking-tight">
-                Related <span className="text-teal-600">Frames</span>
-              </h2>
-              {!isMobile && relatedProducts.length > 4 && (
-                <div className="flex items-center gap-3">
-                  <button onClick={() => relatedScrollRef.current?.scrollBy({ left: -400, behavior: 'smooth' })} className="w-12 h-12 flex items-center justify-center rounded-xl border-2 border-teal-500 text-teal-600 hover:bg-teal-500 hover:text-white transition-all cursor-pointer font-bold shadow-sm">&larr;</button>
-                  <button onClick={() => relatedScrollRef.current?.scrollBy({ left: 400, behavior: 'smooth' })} className="w-12 h-12 flex items-center justify-center rounded-xl border-2 border-teal-500 text-teal-600 hover:bg-teal-500 hover:text-white transition-all cursor-pointer font-bold shadow-sm">&rarr;</button>
-                </div>
-              )}
-            </div>
+       {relatedProducts.length > 0 && (
+  <div
+    className={`mt-16 p-8 lg:p-12 shadow-lg relative overflow-hidden
+      ${isValentinesPeriod() ? 'rounded-2xl' : 'rounded-lg'}`}
+    style={{
+      background: isValentinesPeriod()
+        ? "linear-gradient(135deg, #ffe6e6 0%, #fff0f5 100%)"
+        : "linear-gradient(135deg, #ffffff 0%, #f9fafb 100%)",
+      border: isValentinesPeriod() ? "1px solid #ffccd5" : "1px solid #f1f5f9",
+    }}
+  >
+    {/* Valentine’s 50% Off Banner */}
+    {isValentinesPeriod() && (
+      <div className="absolute top-0 left-0 bg-red-500 text-white font-bold px-4 py-1 transform rotate-0 shadow-lg z-20">
+        Up to 50% OFF
+      </div>
+    )}
 
-            <div
-              ref={relatedScrollRef}
-              className="flex gap-6 overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-teal-500 scrollbar-track-transparent snap-x snap-mandatory"
-              style={{
-                scrollbarWidth: 'thin',
-                msOverflowStyle: 'none',
-              }}
-            >
-              {relatedProducts.map((p) => (
-                <div key={p.id} className="min-w-[280px] sm:min-w-[320px] snap-start">
-                  <ProductCard product={p} hideCategory imageHeight={240} />
-                </div>
-              ))}
-            </div>
-          </div>
+    {/* Heading */}
+    <div className="flex items-center justify-between mb-10">
+      <h2
+        className={`text-2xl lg:text-3xl font-extrabold tracking-tight flex items-center gap-2
+          ${isValentinesPeriod() ? 'text-pink-600' : 'text-gray-900'}`}
+      >
+        {isValentinesPeriod() && (
+          <span className="animate-heartbeat text-3xl lg:text-4xl">❤️</span>
         )}
+        {isValentinesPeriod() ? "Valentine’s Special" : "Related Frames"}
+        {isValentinesPeriod() && (
+          <span className="animate-heartbeat text-3xl lg:text-4xl">❤️</span>
+        )}
+      </h2>
+
+      {!isMobile && relatedProducts.length > 4 && (
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => relatedScrollRef.current?.scrollBy({ left: -400, behavior: 'smooth' })}
+            className={`w-12 h-12 flex items-center justify-center rounded-xl border-2 transition-all cursor-pointer font-bold shadow-sm
+              ${isValentinesPeriod()
+                ? 'border-red-400 text-red-500 hover:bg-red-500 hover:text-white'
+                : 'border-teal-500 text-teal-600 hover:bg-teal-500 hover:text-white'
+              }`}
+          >
+            &larr;
+          </button>
+
+          <button
+            onClick={() => relatedScrollRef.current?.scrollBy({ left: 400, behavior: 'smooth' })}
+            className={`w-12 h-12 flex items-center justify-center rounded-xl border-2 transition-all cursor-pointer font-bold shadow-sm
+              ${isValentinesPeriod()
+                ? 'border-red-400 text-red-500 hover:bg-red-500 hover:text-white'
+                : 'border-teal-500 text-teal-600 hover:bg-teal-500 hover:text-white'
+              }`}
+          >
+            &rarr;
+          </button>
+        </div>
+      )}
+    </div>
+
+    {/* Products Scroll */}
+    <div
+      ref={relatedScrollRef}
+      className="flex gap-6 overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-pink-400 scrollbar-track-transparent snap-x snap-mandatory"
+    >
+      {relatedProducts.map((p) => (
+        <div key={p.id} className="min-w-[280px] sm:min-w-[320px] snap-start relative">
+          {/* Heart on product card */}
+          {isValentinesPeriod() && (
+            <div className="absolute top-2 right-2 text-red-500 text-2xl animate-heartbeat">
+              ❤️
+            </div>
+          )}
+          <ProductCard product={p} hideCategory imageHeight={240} />
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+
+
 
         {/* Best Sellers */}
         {bestProducts.length > 0 && (
