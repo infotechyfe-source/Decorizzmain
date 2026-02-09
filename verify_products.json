@@ -1,0 +1,152 @@
+﻿[
+    {
+        "id":  "1767089227846-vte1t6mj8",
+        "name":  "Artistic Soul",
+        "price":  1999,
+        "image":  "https://res.cloudinary.com/dxpabpzkf/image/upload/f_auto,q_auto/v1768284981/products/1767089219566-ndy6b58o3.webp",
+        "secondaryImage":  null,
+        "images":  [
+
+                   ],
+        "category":  "Uncategorized",
+        "bestSeller":  false,
+        "newArrival":  false,
+        "budgetFind":  false,
+        "premiumCollection":  false
+    },
+    {
+        "id":  "1765287589693-1s4etfvgq",
+        "name":  "Modern Ethnic Fusion Art",
+        "price":  800,
+        "image":  "https://res.cloudinary.com/dxpabpzkf/image/upload/f_auto,q_auto/v1768285014/products/1765287587060-6e7macpn5.webp",
+        "secondaryImage":  null,
+        "images":  [
+
+                   ],
+        "category":  "Home Decor",
+        "bestSeller":  false,
+        "newArrival":  false,
+        "budgetFind":  false,
+        "premiumCollection":  false
+    },
+    {
+        "id":  "1766479793573-p8e047q1b",
+        "name":  "Kurukshetra Divine Moment â Krishna \u0026 Arjuna Epic War Art",
+        "price":  2699,
+        "image":  "https://res.cloudinary.com/dxpabpzkf/image/upload/f_auto,q_auto/v1768287264/products/1766479776001-8j1ygb49i.webp",
+        "secondaryImage":  null,
+        "images":  [
+
+                   ],
+        "category":  "Uncategorized",
+        "bestSeller":  false,
+        "newArrival":  false,
+        "budgetFind":  false,
+        "premiumCollection":  false
+    },
+    {
+        "id":  "1764932206641-57689emti",
+        "name":  "Seven Horses Vastu Positive Energy Wall Art",
+        "price":  800,
+        "image":  "https://res.cloudinary.com/dxpabpzkf/image/upload/f_auto,q_auto/v1768287680/products/1765290686194-q1rq66p2o.webp",
+        "secondaryImage":  null,
+        "images":  [
+
+                   ],
+        "category":  "Spiritual",
+        "bestSeller":  false,
+        "newArrival":  false,
+        "budgetFind":  false,
+        "premiumCollection":  false
+    },
+    {
+        "id":  "1769165337584-gbk6u1uwq",
+        "name":  "FC Barcelona Club Crest",
+        "price":  1599,
+        "image":  "https://res.cloudinary.com/dxpabpzkf/image/upload/f_auto,q_auto/v1769512844/products/v6a4hhjc3bgzohonvym0.webp",
+        "secondaryImage":  null,
+        "images":  [
+
+                   ],
+        "category":  "Uncategorized",
+        "bestSeller":  false,
+        "newArrival":  false,
+        "budgetFind":  false,
+        "premiumCollection":  false
+    },
+    {
+        "id":  "1767093637060-amfqyexfq",
+        "name":  "Kulhad Conversations",
+        "price":  800,
+        "image":  "https://res.cloudinary.com/dxpabpzkf/image/upload/f_auto,q_auto/v1768283811/products/1767095678081-ws0p04b58.webp",
+        "secondaryImage":  null,
+        "images":  [
+
+                   ],
+        "category":  "Uncategorized",
+        "bestSeller":  false,
+        "newArrival":  false,
+        "budgetFind":  true,
+        "premiumCollection":  false
+    },
+    {
+        "id":  "1765287454368-i5ag4blnt",
+        "name":  "Neon Graffiti Renaissance Art",
+        "price":  800,
+        "image":  "https://res.cloudinary.com/dxpabpzkf/image/upload/f_auto,q_auto/v1768286815/products/1765287450837-amqp5wfvp.webp",
+        "secondaryImage":  null,
+        "images":  [
+
+                   ],
+        "category":  "Home Decor",
+        "bestSeller":  false,
+        "newArrival":  false,
+        "budgetFind":  false,
+        "premiumCollection":  false
+    },
+    {
+        "id":  "1767089243152-opm3bw99f",
+        "name":  "Amber Spirit",
+        "price":  1999,
+        "image":  "https://res.cloudinary.com/dxpabpzkf/image/upload/f_auto,q_auto/v1768285028/products/1767089235411-z70vshdjc.webp",
+        "secondaryImage":  null,
+        "images":  [
+
+                   ],
+        "category":  "Uncategorized",
+        "bestSeller":  false,
+        "newArrival":  false,
+        "budgetFind":  false,
+        "premiumCollection":  false
+    },
+    {
+        "id":  "1767085763200-jn47gqy2c",
+        "name":  "Traditional Indian Thali Art",
+        "price":  1999,
+        "image":  "https://res.cloudinary.com/dxpabpzkf/image/upload/f_auto,q_auto/v1768285048/products/1767085753900-85nt8osk7.webp",
+        "secondaryImage":  null,
+        "images":  [
+
+                   ],
+        "category":  "Uncategorized",
+        "bestSeller":  false,
+        "newArrival":  true,
+        "budgetFind":  false,
+        "premiumCollection":  false
+    },
+    {
+        "id":  "1767089575506-94foo4a07",
+        "name":  "Blind Truth",
+        "price":  1999,
+        "image":  "https://res.cloudinary.com/dxpabpzkf/image/upload/f_auto,q_auto/v1768304770/products/b5jkweevym4rnkvrqc0w.webp",
+        "secondaryImage":  null,
+        "images":  [
+
+                   ],
+        "category":  "Uncategorized",
+        "bestSeller":  false,
+        "newArrival":  false,
+        "budgetFind":  false,
+        "premiumCollection":  true
+    }
+]

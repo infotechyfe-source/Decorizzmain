@@ -1,0 +1,848 @@
+import React, { useEffect, useState, useMemo, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Navbar } from '../components/Navbar';
+import { Footer } from '../components/Footer';
+import { ProductCard } from '../components/ProductCard';
+import SkeletonProductCard from '../components/SkeletonProductCard';
+import { SEO } from '../components/SEO';
+import { Filter, X, ChevronDown, CheckCircle2 } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useCategoryImages } from '../utils/useCategoryImages';
+import { MobileFilterSheet } from '../components/MobileFilterSheet';
+import { projectId, publicAnonKey } from '../utils/supabase/info';
+import { useHeroImages } from '../utils/useHomePageData';
+import { HeroCarousel } from '../components/HeroCarousel';
+
+
+const SORT_OPTIONS = [
+  { value: "popular", label: "Most Popular" },
+  { value: "newest", label: "Newest" },
+  { value: "price-low", label: "Price: Low to High" },
+  { value: "price-high", label: "Price: High to Low" }
+];
+
+function SortDropdown({ value, onChange }) {
+  const [open, setOpen] = useState(false);
+  const isDarkTheme = typeof document !== 'undefined' && !!document.querySelector('.dark-theme');
+
+  return (
+    <div className="relative sort-dropdown z-20">
+      {/* Button */}
+      <button
+        onClick={() => setOpen(!open)}
+        className={`
+          w-full flex items-center justify-between px-6 py-2 text-sm font-medium transition-all duration-200
+          border rounded-xl focus:outline-none whitespace-nowrap
+          ${open
+            ? 'border-teal-500 shadow-sm ring-4 ring-teal-500/10'
+            : 'border-gray-200 dark:border-slate-700 hover:border-teal-500 hover:shadow-md'
+          }
+        `}
+        style={{
+          backgroundColor: isDarkTheme ? '#0f172a' : '#ffffff',
+          color: isDarkTheme ? '#e5e7eb' : '#374151',
+          borderColor: open ? '#14b8a6' : (isDarkTheme ? '#334155' : '#e5e7eb')
+        }}
+      >
+        <span className={`${open ? 'text-teal-600' : ''} transition-colors whitespace-nowrap cursor-pointer`}>
+          {SORT_OPTIONS.find(o => o.value === value)?.label}
+        </span>
+        <ChevronDown
+          className={`w-4 h-4 transition-transform duration-200 ${open ? 'rotate-180 text-teal-500' : 'text-gray-400'}`}
+        />
+      </button>
+
+      {/* Dropdown Menu */}
+      {open && (
+        <div
+          className="absolute left-0 top-full mt-2 w-full rounded-xl shadow-2xl overflow-hidden animate-fadeIn backdrop-blur-sm"
+          style={{
+            backgroundColor: isDarkTheme ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+            border: `1px solid ${isDarkTheme ? '#334155' : '#f3f4f6'}`,
+            zIndex: 100
+          }}
+        >
+          <div className="py-1">
+            {SORT_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => {
+                  onChange(opt.value);
+                  setOpen(false);
+                }}
+                className="flex items-center justify-between w-full px-6 py-2 text-sm text-left transition-colors duration-150"
+                style={{
+                  backgroundColor: value === opt.value
+                    ? (isDarkTheme ? 'rgba(20, 184, 166, 0.1)' : '#f0fdfa')
+                    : 'transparent',
+                  color: value === opt.value
+                    ? '#14b8a6'
+                    : (isDarkTheme ? '#e5e7eb' : '#374151'),
+                  fontWeight: value === opt.value ? 600 : 400
+                }}
+                onMouseEnter={(e) => {
+                  if (value !== opt.value) {
+                    e.currentTarget.style.backgroundColor = isDarkTheme ? '#1e293b' : '#f8fafc';
+                    e.currentTarget.style.color = '#14b8a6';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (value !== opt.value) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = isDarkTheme ? '#e5e7eb' : '#374151';
+                  }
+                }}
+              >
+                <span className="whitespace-nowrap">{opt.label}</span>
+                {value === opt.value && (
+                  <span className="w-2 h-2 rounded-full bg-teal-500 shadow-[0_0_8px_rgba(20,184,166,0.5)]"></span>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const ROOM_OPTIONS = [
+  { name: 'Home Bar' },
+  { name: 'Bath Space' },
+  { name: 'Bedroom' },
+  { name: 'Dining Area' },
+  { name: 'Game Zone / Lounge Cave' },
+  { name: 'Workshop / Garage Space' },
+  { name: 'Fitness Room' },
+  { name: 'Entryway / Corridor' },
+  { name: 'Kids Space' },
+  { name: 'Kitchen' },
+  { name: 'Living Area' },
+  { name: 'Office / Study Zone' },
+  { name: 'Pooja Room' },
+];
+
+
+const LAYOUT_OPTIONS = ['Portrait', 'Square', 'Landscape', 'Circle'];
+const SIZE_OPTIONS = ['8×12', '12×18', '18×24', '20×30', '24×36', '30×40', '36×48', '48×66', '18×18', '24×24', '36×36', '20×20', '30×30'];
+const COLOR_OPTIONS = ['White', 'Black', 'Brown'];
+const MATERIAL_OPTIONS = ['Wood', 'Metal', 'Plastic', 'Glass'];
+// Spiritual Art categories matching navbar dropdown
+const SPIRITUAL_CATEGORIES = ['Bastu Yatra Painting', 'Ganesh Wall Art', 'Radha Krishna Art', 'Vishnu Art', 'Buddha Painting', 'Shiva Mahdev Art', 'Ma Durga Art', 'Jesus Art', 'Islamic Art'];
+// CATEGORY_OPTIONS now computed dynamically from products
+
+// Simple Fisher–Yates shuffle
+function shuffleArray<T>(array: T[]): T[] {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  room?: string;
+  roomCategory?: string;
+  layout?: string;
+  size?: string;
+  sizes?: string[];
+  colors?: string[];
+  material?: string;
+  category?: string;
+  categories?: string[];
+  createdAt?: string;
+  subsection?: '2-Set' | '3-Set' | 'Square';
+  format?: 'Rolled' | 'Canvas' | 'Frame';
+  frameColor?: 'White' | 'Black' | 'Brown';
+}
+
+export default function ShopPage() {
+  // ⬇️ Add this block RIGHT AFTER imports
+
+
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { getImage } = useCategoryImages();
+  const [showShopDropdown, setShowShopDropdown] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
+  const shuffledProducts = useMemo(() => shuffleArray(products), [products]);
+
+  const { data: heroImages, isLoading: heroLoading } = useHeroImages('shop');
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const body = document.body;
+    if (showFilters) {
+      body.style.overflow = 'hidden';
+      body.style.touchAction = 'none';
+    } else {
+      body.style.overflow = '';
+      body.style.touchAction = '';
+    }
+    return () => {
+      body.style.overflow = '';
+      body.style.touchAction = '';
+    };
+  }, [showFilters]);
+
+  const [expandedSections, setExpandedSections] = useState({
+    room: true,
+    layout: true,
+    size: true,
+    colors: true,
+    materials: true,
+    categories: true,
+  });
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = (typeof window !== 'undefined' && window.innerWidth < 640) ? 8 : 12;
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  const [filters, setFilters] = useState({
+    rooms: [] as string[],
+    layouts: [] as string[],
+    sizes: [] as string[],
+    colors: [] as string[],
+    materials: [] as string[],
+    categories: [] as string[],
+    priceMin: 0,
+    priceMax: 10000,
+    sortBy: 'popular',
+  });
+
+  const [activeFilter, setActiveFilter] = useState<string>('All');
+
+  const BASIC_PRICE: Record<string, { Rolled: number | null; Canvas: number | null; Frame: number | null }> = {
+    '8X12': { Rolled: 679, Canvas: 800, Frame: 999 },
+    '12X18': { Rolled: 879, Canvas: 1100, Frame: 1299 },
+    '18X24': { Rolled: 1280, Canvas: 1699, Frame: 1799 },
+    '20X30': { Rolled: 1780, Canvas: 2599, Frame: 2799 },
+    '24X36': { Rolled: 1999, Canvas: 2999, Frame: 3299 },
+    '30X40': { Rolled: 2899, Canvas: 4699, Frame: 5199 },
+    '36X48': { Rolled: 3500, Canvas: 5799, Frame: 6499 },
+    '48X66': { Rolled: 5879, Canvas: 9430, Frame: null },
+    '18X18': { Rolled: 1199, Canvas: 1699, Frame: 1899 },
+    '24X24': { Rolled: 1599, Canvas: 2299, Frame: 2499 },
+    '36X36': { Rolled: 3199, Canvas: 4599, Frame: 4999 },
+    '20X20': { Rolled: 1299, Canvas: 1899, Frame: 1999 },
+    '30X30': { Rolled: 2199, Canvas: 3199, Frame: 3499 },
+    '36X18': { Rolled: 2699, Canvas: 2699, Frame: 2899 },
+    '48X24': { Rolled: 2799, Canvas: 3299, Frame: 3599 },
+  };
+
+  const TWOSET_PRICE: Record<string, { Rolled: number | null; Canvas: number | null; Frame: number | null }> = {
+    '8X12': { Rolled: 1299, Canvas: 1599, Frame: 1999 },
+    '12X18': { Rolled: 1899, Canvas: 2199, Frame: 2499 },
+    '18X24': { Rolled: 2499, Canvas: 3399, Frame: 3599 },
+    '20X30': { Rolled: 3799, Canvas: 5199, Frame: 5599 },
+    '24X36': { Rolled: 3999, Canvas: 5999, Frame: 6599 },
+    '30X40': { Rolled: 5799, Canvas: 9399, Frame: 10399 },
+    '36X48': { Rolled: 6999, Canvas: 11599, Frame: 12999 },
+    '48X66': { Rolled: 11799, Canvas: 18899, Frame: null },
+  };
+
+  const THREESET_PRICE: Record<string, { Rolled: number | null; Canvas: number | null; Frame: number | null }> = {
+    '8X12': { Rolled: 2099, Canvas: 2499, Frame: 2999 },
+    '12X18': { Rolled: 2699, Canvas: 3399, Frame: 3899 },
+    '18X24': { Rolled: 3899, Canvas: 5099, Frame: 5399 },
+    '20X30': { Rolled: 5399, Canvas: 7799, Frame: 8399 },
+    '24X36': { Rolled: 6999, Canvas: 8899, Frame: 9599 },
+    '30X40': { Rolled: 8699, Canvas: 14099, Frame: 15559 },
+    '36X48': { Rolled: 10599, Canvas: 17399, Frame: 19499 },
+    '48X66': { Rolled: 17699, Canvas: 28299, Frame: null },
+  };
+
+  const normalizeSize = (s?: string) => {
+    if (!s) return '';
+    const cleaned = s.replace(/\s+/g, '').toUpperCase().replace('×', 'X');
+    const parts = cleaned.split('X');
+    if (parts.length !== 2) return cleaned;
+    return `${parts[0]}X${parts[1]}`;
+  };
+
+  const computePriceFor = (
+    size: string,
+    format: 'Rolled' | 'Canvas' | 'Frame',
+    subsection?: '2-Set' | '3-Set' | 'Square'
+  ) => {
+    // If activeFilter is a specific format, we only care about that format price
+    // If activeFilter is a Set, we use that table
+    const key = normalizeSize(size);
+    let table = null;
+
+    if (['2-Set', '3-Set'].includes(activeFilter)) {
+      table = activeFilter === '2-Set' ? TWOSET_PRICE : THREESET_PRICE;
+    } else {
+      table = BASIC_PRICE;
+    }
+
+    // Only override if we are in a specific valid context
+    // For simplicity, we just check the basic lookup for now based on the requested format arg
+    // But since `overridePrice` is used for display, we match the logic:
+    const row = table[key];
+    if (!row) return undefined;
+    return row[format] ?? undefined;
+  };
+
+  useEffect(() => {
+    fetchProducts();
+
+    // Handle params
+    const category = searchParams.get('category');
+    const sort = searchParams.get('sort');
+    const format = searchParams.get('format');
+    const subsection = searchParams.get('subsection');
+    const layout = searchParams.get('layout');
+
+    setFilters(prev => ({
+      ...prev,
+      categories: category ? [category] : prev.categories,
+      layouts: layout ? [layout] : prev.layouts,
+      sortBy: sort || prev.sortBy
+    }));
+
+    if (format && ['Canvas', 'Frame'].includes(format)) {
+      setActiveFilter(format);
+    } else if (subsection && ['2-Set', '3-Set', 'Square'].includes(subsection)) {
+      setActiveFilter(subsection);
+    } else if (layout && ['Circle', 'Landscape', 'Portrait'].includes(layout)) {
+      setActiveFilter(layout);
+    }
+  }, [searchParams]);
+
+
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-52d68140/products`,
+        {
+          headers: {
+            Authorization: `Bearer ${publicAnonKey}`,
+          },
+        }
+      );
+      const data = await response.json();
+      setProducts(data.products || []);
+    } catch (error) {
+      console.error('Fetch products error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getRoomCounts = () => {
+    const counts: { [key: string]: number } = {};
+    products.forEach(p => {
+      const room = p.roomCategory || p.room;
+      if (room) {
+        counts[room] = (counts[room] || 0) + 1;
+      }
+    });
+    return counts;
+  };
+
+  const roomCounts = useMemo(() => getRoomCounts(), [products]);
+
+  const getCategoryCounts = () => {
+    const counts: { [key: string]: number } = {};
+    products.forEach(p => {
+      const productCategories = p.categories && p.categories.length > 0
+        ? p.categories
+        : (p.category ? [p.category] : []);
+
+      productCategories.forEach(cat => {
+        counts[cat] = (counts[cat] || 0) + 1;
+      });
+    });
+    return counts;
+  };
+  const categoryCounts = useMemo(() => getCategoryCounts(), [products]);
+  const categoryNames = Object.keys(categoryCounts).sort();
+
+  const toggleFilter = (filterType: string, value: string) => {
+    setFilters(prev => {
+      const currentValues = prev[filterType as keyof typeof prev] as string[];
+      const newValues = currentValues.includes(value)
+        ? currentValues.filter(v => v !== value)
+        : [...currentValues, value];
+      return { ...prev, [filterType]: newValues };
+    });
+  };
+
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({ ...prev, [section]: !prev[section as keyof typeof prev] }));
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      rooms: [],
+      layouts: [],
+      sizes: [],
+      colors: [],
+      materials: [],
+      categories: [],
+      priceMin: 0,
+      priceMax: 10000,
+      sortBy: 'popular',
+    });
+  };
+
+  const activeFilterCount =
+    filters.rooms.length +
+    filters.layouts.length +
+    filters.sizes.length +
+    filters.colors.length +
+    filters.materials.length +
+    filters.categories.length;
+
+  const filteredProducts = useMemo(() => {
+    // 🔹 Start from shuffled list instead of original
+    let result = [...shuffledProducts];
+
+    if (filters.rooms.length > 0) {
+      result = result.filter(p => filters.rooms.includes(p.roomCategory || p.room || ''));
+    }
+
+    if (filters.layouts.length > 0) {
+      result = result.filter(p => filters.layouts.includes(p.layout || ''));
+    }
+
+    if (filters.sizes.length > 0) {
+      result = result.filter(p => {
+        if (Array.isArray(p.sizes)) return p.sizes.some(s => filters.sizes.includes(s));
+        return filters.sizes.includes(p.size || '');
+      });
+    }
+
+    if (filters.colors.length > 0) {
+      result = result.filter(p => p.colors?.some(c => filters.colors.includes(c)));
+    }
+
+    if (filters.materials.length > 0) {
+      result = result.filter(p => filters.materials.includes(p.material || ''));
+    }
+
+    if (filters.categories.length > 0) {
+      result = result.filter(p => {
+        // Support both new categories array and old single category field
+        const productCategories = p.categories && p.categories.length > 0
+          ? p.categories
+          : (p.category ? [p.category] : []);
+        return productCategories.some((cat: string) => filters.categories.includes(cat));
+      });
+    }
+
+    result = result.filter(p => p.price >= filters.priceMin && p.price <= filters.priceMax);
+
+    switch (filters.sortBy) {
+      case 'price-low':
+        result.sort((a, b) => a.price - b.price);
+        break;
+      case 'price-high':
+        result.sort((a, b) => b.price - a.price);
+        break;
+      case 'newest':
+        result.sort(
+          (a, b) =>
+            new Date(b.createdAt || '').getTime() -
+            new Date(a.createdAt || '').getTime()
+        );
+        break;
+      // 'popular' → keep shuffled order
+    }
+
+    return result;
+  }, [shuffledProducts, filters]);
+
+  const finalFilteredProducts = useMemo(() => {
+    return filteredProducts.filter(p => {
+      if (activeFilter === 'All') return true;
+      if (['Canvas', 'Frame'].includes(activeFilter)) {
+        return p.format === activeFilter;
+      }
+      if (['2-Set', '3-Set', 'Square'].includes(activeFilter)) {
+        return p.subsection === activeFilter;
+      }
+      if (['Circle', 'Landscape', 'Portrait'].includes(activeFilter)) {
+        return p.layout?.toLowerCase() === activeFilter.toLowerCase();
+      }
+      return true;
+    });
+  }, [filteredProducts, activeFilter]);
+
+  const totalPages = useMemo(() => {
+    return Math.max(1, Math.ceil(finalFilteredProducts.length / PAGE_SIZE));
+  }, [finalFilteredProducts]);
+
+  const paginatedProducts = useMemo(() => {
+    return finalFilteredProducts.slice(0, currentPage * PAGE_SIZE);
+  }, [finalFilteredProducts, currentPage]);
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver((entries) => {
+      const entry = entries[0];
+      if (entry.isIntersecting) {
+        setCurrentPage((p) => {
+          const next = p + 1;
+          const maxPages = Math.max(1, Math.ceil(finalFilteredProducts.length / PAGE_SIZE));
+          return next <= maxPages ? next : p;
+        });
+      }
+    }, { root: null, rootMargin: '200px', threshold: 0.01 });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [finalFilteredProducts.length, PAGE_SIZE]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters, activeFilter]);
+
+
+  // Helper to handle quick filter clicks and ensure no conflicting state persists
+  const handleQuickFilter = (opt: string) => {
+    setActiveFilter(opt);
+    // Clear layout filters when switching quick filters to prevent "stuck" states
+    // especially if coming from a URL with ?layout=...
+    setFilters(prev => ({
+      ...prev,
+      layouts: []
+    }));
+  };
+
+  return (
+    <div className="min-h-screen pt-[72px] lg:pt-[88px]" style={{ background: 'linear-gradient(135deg, #f0fdf9 0%, #fdf9efff 100%)' }}>
+      <SEO
+        title="Shop All Frames"
+        description="Explore our complete collection of 300+ premium wall frames and canvas art. Filter by room, size, style and more."
+        url="/shop"
+      />
+      <Navbar />
+      <HeroCarousel images={heroImages || []} loading={heroLoading} variant="shop" />
+      <section className=" lg:mt-8">
+        <h1 className="text-center custom-heading">
+          Shop All <span className="text-gradient-teal">Frames</span>
+        </h1>
+      </section>
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+
+        {/* Header */}
+        {/* HERO HEADER */}
+        {/* <section className=" mx-auto sm:px-6 mb-12">
+          <div className="max-w-8xl mx-auto">
+            <div className="premium-card-glow p-8 sm:p-12 animate-fade-scale">
+              <h1 className="text-center custom-heading">
+                Shop All <span className="text-gradient-teal">Frames</span>
+              </h1>
+              <p className="text-center max-w-3xl mx-auto italic text-base sm:text-lg text-[#4b5563]">
+                Explore our complete collection of curated frames for every style and space.
+              </p>
+            </div>
+          </div>
+        </section> */}
+
+        <div className="flex gap-8 items-start relative">
+          {/* Filters Sidebar */}
+          <div className="hidden lg:block lg:w-64 flex-shrink-0 lg:self-start">
+            {/* Sticky wrapper */}
+            <div className="sticky top-[72px] max-h-[calc(100vh-72px)] overflow-y-auto">
+              {/* Filter Panel */}
+              <div className="rounded-lg shadow-2xl flex flex-col bg-white/80 backdrop-blur-md border border-gray-200 p-4">
+
+                {/* Header */}
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold text-[#1f2937]">Filters</h2>
+                  {activeFilterCount > 0 && (
+                    <span className="bg-teal-600 text-white text-xs px-2 py-2 rounded-full font-semibold">
+                      {activeFilterCount}
+                    </span>
+                  )}
+                </div>
+
+                {/* Scrollable Content */}
+                <div className="flex flex-col gap-6">
+                  {/* Decor by Space */}
+                  <div>
+                    <button
+                      onClick={() => toggleSection('room')}
+                      className="flex items-center justify-between w-full mb-3 px-2 py-1 rounded-lg bg-teal text-white font-bold"
+                    >
+                      Decor by Space
+                      <ChevronDown
+                        className={`w-4 h-4 transition-transform ${expandedSections.room ? 'rotate-180' : ''}`}
+                      />
+                    </button>
+                    {expandedSections.room && (
+                      <div className="space-y-2">
+                        {ROOM_OPTIONS.map(room => {
+                          const isChecked = filters.rooms.includes(room.name);
+                          return (
+                            <label key={room.name} className="flex items-center justify-between cursor-pointer">
+                              <div className="flex items-center">
+                                <input
+                                  type="checkbox"
+                                  checked={isChecked}
+                                  onChange={() => toggleFilter('rooms', room.name)}
+                                  className="mr-2"
+                                  style={{ accentColor: '#14b8a6' }}
+                                />
+                                <span className="text-sm text-gray-700">{room.name}</span>
+                              </div>
+                              <span className="text-xs text-gray-400">({roomCounts[room.name] || 0})</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Price Range */}
+                  <div>
+                    <h3 className="mb-2 font-bold text-gray-700">Price Range</h3>
+                    <input
+                      type="range"
+                      min="0"
+                      max="10000"
+                      step="100"
+                      value={filters.priceMax}
+                      onChange={(e) => setFilters(prev => ({ ...prev, priceMax: Number(e.target.value) }))}
+                      className="w-full cursor-pointer"
+                      style={{ accentColor: '#14b8a6' }}
+                    />
+                    <div className="flex justify-between text-sm text-gray-500 mt-1">
+                      <span>₹{filters.priceMin}</span>
+                      <span>₹{filters.priceMax}</span>
+                    </div>
+                  </div>
+
+                  {/* Clear Filters Button */}
+                  {activeFilterCount > 0 && (
+                    <button
+                      onClick={clearFilters}
+                      className="w-full py-2 px-4 rounded-xl font-semibold bg-red-100 text-red-600"
+                    >
+                      Clear All Filters
+                    </button>
+                  )}
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          {/* Products Grid */}
+          <div className="flex-1 w-full lg:order-1 min-w-0">
+            {/* Sort */}
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+
+              <p className="font-medium text-gray-500">
+                <span className="font-bold text-teal-500">
+                  {finalFilteredProducts.length}
+                </span>
+                {" "}products found
+              </p>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                <SortDropdown
+                  value={filters.sortBy}
+                  onChange={(val) => setFilters(prev => ({ ...prev, sortBy: val }))}
+                />
+
+                {/* Shop Collections dropdown (same links as navbar) */}
+                <div className="relative hidden md:block">
+                  <button
+                    onClick={() => setShowShopDropdown((v) => !v)}
+                    className="rounded-full px-4 py-2 text-sm transition hover:text-teal-600"
+                    style={{
+                      backgroundColor: 'rgba(233, 229, 220, 0.5)',
+                      fontWeight: 600,
+                      color: '#3b2f27'
+                    }}
+                  >
+                    Shop Collections
+                    <ChevronDown className={`inline-block w-4 h-4 ml-1 transition-transform ${showShopDropdown ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {showShopDropdown && (
+                    <div className="absolute left-0 mt-2 w-180 max-w-[90vw] rounded-2xl shadow-xl border border-gray-100 backdrop-blur-md z-30" style={{ background: 'linear-gradient(180deg, #f8fffe 0%, #faf9f5 100%)' }}>
+                      <div className="px-6 py-6">
+                        <div className="flex justify-between items-center mb-4">
+                          <h3 className="text-lg font-bold text-teal-600">Shop Collections</h3>
+                          <Link to="/shop" className="text-teal-500 font-semibold">View All</Link>
+                        </div>
+                        <div className="flex justify-center gap-6">
+                          {[
+                            { label: '2 Set', to: '/shop?subsection=2-Set', category: '2-Set' },
+                            { label: '3 Set', to: '/shop?subsection=3-Set', category: '3-Set' },
+                            { label: 'Square', to: '/shop?subsection=Square', category: 'Square' },
+                            { label: 'Circle', to: '/shop?layout=Circle', category: 'Circle' },
+                            { label: 'Landscape', to: '/shop?layout=Landscape', category: 'Landscape' },
+                            { label: 'Portrait', to: '/shop?layout=Portrait', category: 'Portrait' },
+                          ].map((item, idx) => (
+                            <Link
+                              key={item.label}
+                              to={item.to}
+                              className="group flex flex-col items-center gap-3 p-3 rounded-xl hover:bg-white/50 transition-all duration-300 cursor-pointer"
+                              onClick={() => setShowShopDropdown(false)}
+                              style={{ opacity: 0, animation: `fadeSlideUp 0.5s ease forwards ${idx * 0.1}s` }}
+                            >
+                              <div className="relative w-28 h-28 overflow-hidden rounded-xl shadow-md group-hover:shadow-xl transition-all">
+                                <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors z-10" />
+                                <img src={getImage(item.category)} alt={item.label} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" />
+                              </div>
+                              <span className="font-semibold text-gray-700 group-hover:text-teal-600 text-center transition-colors text-sm">{item.label}</span>
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Mobile Filter Trigger (top) */}
+                <button
+                  onClick={() => setShowFilters(true)}
+                  className="lg:hidden px-6 py-2 rounded-xl border flex items-center gap-2 font-medium transition-all duration-200 hover:shadow-md"
+                  style={{
+                    borderColor: '#e5e7eb',
+                    backgroundColor: '#ffffff',
+                    color: '#374151',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = '#14b8a6';
+                    e.currentTarget.style.color = '#14b8a6';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = '#e5e7eb';
+                    e.currentTarget.style.color = '#374151';
+                  }}
+                >
+                  <Filter className="w-4 h-4 text-teal-500" />
+                  <span className="text-sm">Filters</span>
+                </button>
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              {(['All', '2-Set', '3-Set', 'Square', 'Circle', 'Landscape', 'Portrait'] as const).map(opt => (
+                <button
+                  key={opt}
+                  onClick={() => handleQuickFilter(opt)}
+                  className="px-4 py-2 rounded-full border text-sm transition cursor-pointer"
+                  style={{
+                    backgroundColor: activeFilter === opt ? '#14b8a6' : 'white',
+                    color: activeFilter === opt ? 'white' : '#374151',
+                    borderColor: activeFilter === opt ? '#14b8a6' : '#d1d5db',
+                    fontWeight: 600,
+                  }}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+
+            {loading ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <SkeletonProductCard key={i} />
+                ))}
+              </div>
+            ) : filteredProducts.length > 0 ? (
+              <>
+
+                <div className="w-full overflow-hidden pb-6">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 w-full items-stretch">
+                    {paginatedProducts.map((product, index) => {
+                      const chosenSize = filters.sizes[0] || "";
+                      let overridePrice =
+                        (activeFilter === 'Canvas' || activeFilter === 'Frame') && chosenSize
+                          ? computePriceFor(
+                            chosenSize,
+                            activeFilter,
+                            undefined
+                          )
+                          : undefined;
+
+                      // Fix: If product is Landscape, force default price to 36x18 (1880) if not overridden
+                      if (product.layout?.toLowerCase() === 'landscape' && !overridePrice) {
+                        const landscapePrice = computePriceFor('36X18', 'Rolled', undefined);
+                        if (landscapePrice) overridePrice = landscapePrice;
+                      }
+
+                      return (
+                        <div key={product.id} className="w-full h-full">
+                          <ProductCard
+                            product={product}
+                            overridePrice={overridePrice}
+                            eyeNavigates
+                            hideCategory={true}
+                            hideColors={true}
+                            loading={index < 4 ? "eager" : "lazy"}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Infinite Scroll Sentinel */}
+                <div ref={sentinelRef} style={{ height: '1px' }} />
+
+              </>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-gray-500 text-lg">No products match your filters</p>
+                <button
+                  onClick={clearFilters}
+                  className="premium-btn-white"
+                >
+                  Clear All Filters
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* <button
+        onClick={() => setShowFilters(true)}
+        className="fixed bottom-6 right-4 md:hidden rounded-full border w-12 h-12 flex items-center justify-center shadow-lg z-50"
+        style={{ borderColor: '#334155', backgroundColor: '#0f172a', color: '#e5e7eb' }}
+      >
+        <span className="sr-only">Filters</span>
+        <Filter className="w-6 h-6" />
+      </button> */}
+
+      <Footer />
+      {/* Mobile-only Filter Sheet */}
+      <MobileFilterSheet
+        isOpen={showFilters}
+        onClose={() => setShowFilters(false)}
+        onApply={() => setShowFilters(false)}
+        sortBy={filters.sortBy}
+        onSortChange={(val) => setFilters(prev => ({ ...prev, sortBy: val }))}
+        // categories={categoryNames}
+        selectedCategories={filters.categories}
+        onToggleCategory={(cat) => toggleFilter('categories', cat)}
+        priceMin={filters.priceMin}
+        priceMax={filters.priceMax}
+        onPriceRangeChange={(min, max) => setFilters(prev => ({ ...prev, priceMin: min, priceMax: max }))}
+        priceBounds={{ min: 0, max: 10000 }}
+        activeFilter={activeFilter}
+        onActiveFilterChange={handleQuickFilter}
+        rooms={ROOM_OPTIONS}
+        selectedRooms={filters.rooms}
+        onToggleRoom={(room) => toggleFilter('rooms', room)}
+        roomCounts={roomCounts}
+      />
+    </div >
+  );
+}
