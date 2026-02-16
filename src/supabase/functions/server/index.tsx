@@ -1369,8 +1369,6 @@ async function createNotification(userId: string, type: string, title: string, m
   console.log(`Notification created for user ${userId}: ${title}`);
 }
 
-
-
 // Gallery Upload - Now using Cloudinary
 app.post("/make-server-52d68140/gallery/upload", async (c) => {
   try {

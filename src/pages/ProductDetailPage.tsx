@@ -1678,7 +1678,6 @@ export default function ProductDetailPage() {
           </div>
         )}
 
-
        {relatedProducts.length > 0 && (
   <div
     className={`mt-16 p-8 lg:p-12 shadow-lg relative overflow-hidden

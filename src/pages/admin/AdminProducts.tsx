@@ -1014,7 +1014,7 @@ export default function AdminProducts() {
                                                     <option value="2-Set">2-Set</option>
                                                     <option value="3-Set">3-Set</option>
                                                     <option value="Square">Square</option>
-                                                     <option value="Valentine">Valentine's</option>
+                                                    <option value="Valentine">Valentine's</option>
                                                 </select>
                                             </div>
 
@@ -1449,7 +1449,7 @@ export default function AdminProducts() {
                                 </div>
 
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                    {["8X12", "12X18", "18X24", "20X30", "24X36", "30X40", "36X48", "48X66", "18X18", "24X24", "36X36", "20X20", "30X30"].map((size) => (
+                                    {["8X12", "12X18", "18X24", "20X30", "24X36", "30X40", "36X48", "48X66", "12X12", "15X15", "18X18", "24X24", "36X36", "20X20", "30X30", "8X30", "10X40", "12X36", "12X48", "16X64",].map((size) => (
                                         <label
                                             key={size}
                                             className="flex items-center gap-2 border border-gray-300
