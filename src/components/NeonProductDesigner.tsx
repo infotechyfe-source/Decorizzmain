@@ -352,7 +352,9 @@ const NeonProductDesignerContent: React.FC<NeonProductDesignerProps> = ({
               </div>
 
               <div>
+
                 <div className="mb-2" style={{ color: '#374151' }}>Choose Size (Dimensions):</div>
+                
                 <div className="flex gap-1 mb-3 bg-gray-100 p-1 rounded-lg">
                   {['LANDSCAPE', 'SQUARE', 'CUSTOM'].map((cat) => (
                     <button

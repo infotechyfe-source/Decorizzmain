@@ -1678,86 +1678,85 @@ export default function ProductDetailPage() {
           </div>
         )}
 
-       {relatedProducts.length > 0 && (
-  <div
-    className={`mt-16 p-8 lg:p-12 shadow-lg relative overflow-hidden
+        {relatedProducts.length > 0 && (
+          <div
+            className={`mt-16 p-8 lg:p-12 shadow-lg relative overflow-hidden
       ${isValentinesPeriod() ? 'rounded-2xl' : 'rounded-lg'}`}
-    style={{
-      background: isValentinesPeriod()
-        ? "linear-gradient(135deg, #ffe6e6 0%, #fff0f5 100%)"
-        : "linear-gradient(135deg, #ffffff 0%, #f9fafb 100%)",
-      border: isValentinesPeriod() ? "1px solid #ffccd5" : "1px solid #f1f5f9",
-    }}
-  >
-    {/* Valentine’s 50% Off Banner */}
-    {isValentinesPeriod() && (
-      <div className="absolute top-0 left-0 bg-red-500 text-white font-bold px-4 py-1 transform rotate-0 shadow-lg z-20">
-        Up to 50% OFF
-      </div>
-    )}
+            style={{
+              background: isValentinesPeriod()
+                ? "linear-gradient(135deg, #ffe6e6 0%, #fff0f5 100%)"
+                : "linear-gradient(135deg, #ffffff 0%, #f9fafb 100%)",
+              border: isValentinesPeriod() ? "1px solid #ffccd5" : "1px solid #f1f5f9",
+            }}
+          >
+            {/* Valentine’s 50% Off Banner */}
+            {isValentinesPeriod() && (
+              <div className="absolute top-0 left-0 bg-red-500 text-white font-bold px-4 py-1 transform rotate-0 shadow-lg z-20">
+                Up to 50% OFF
+              </div>
+            )}
 
-    {/* Heading */}
-    <div className="flex items-center justify-between mb-10">
-      <h2
-        className={`text-2xl lg:text-3xl font-extrabold tracking-tight flex items-center gap-2
+            {/* Heading */}
+            <div className="flex items-center justify-between mb-10">
+              <h2
+                className={`text-2xl lg:text-3xl font-extrabold tracking-tight flex items-center gap-2
           ${isValentinesPeriod() ? 'text-pink-600' : 'text-gray-900'}`}
-      >
-        {isValentinesPeriod() && (
-          <span className="animate-heartbeat text-3xl lg:text-4xl">❤️</span>
-        )}
-        {isValentinesPeriod() ? "Valentine’s Special" : "Related Frames"}
-        {isValentinesPeriod() && (
-          <span className="animate-heartbeat text-3xl lg:text-4xl">❤️</span>
-        )}
-      </h2>
+              >
+                {isValentinesPeriod() && (
+                  <span className="animate-heartbeat text-3xl lg:text-4xl">❤️</span>
+                )}
+                {isValentinesPeriod() ? "Valentine’s Special" : "Related Frames"}
+                {isValentinesPeriod() && (
+                  <span className="animate-heartbeat text-3xl lg:text-4xl">❤️</span>
+                )}
+              </h2>
 
-      {!isMobile && relatedProducts.length > 4 && (
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => relatedScrollRef.current?.scrollBy({ left: -400, behavior: 'smooth' })}
-            className={`w-12 h-12 flex items-center justify-center rounded-xl border-2 transition-all cursor-pointer font-bold shadow-sm
+              {!isMobile && relatedProducts.length > 4 && (
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => relatedScrollRef.current?.scrollBy({ left: -400, behavior: 'smooth' })}
+                    className={`w-12 h-12 flex items-center justify-center rounded-xl border-2 transition-all cursor-pointer font-bold shadow-sm
               ${isValentinesPeriod()
-                ? 'border-red-400 text-red-500 hover:bg-red-500 hover:text-white'
-                : 'border-teal-500 text-teal-600 hover:bg-teal-500 hover:text-white'
-              }`}
-          >
-            &larr;
-          </button>
+                        ? 'border-red-400 text-red-500 hover:bg-red-500 hover:text-white'
+                        : 'border-teal-500 text-teal-600 hover:bg-teal-500 hover:text-white'
+                      }`}
+                  >
+                    &larr;
+                  </button>
 
-          <button
-            onClick={() => relatedScrollRef.current?.scrollBy({ left: 400, behavior: 'smooth' })}
-            className={`w-12 h-12 flex items-center justify-center rounded-xl border-2 transition-all cursor-pointer font-bold shadow-sm
+                  <button
+                    onClick={() => relatedScrollRef.current?.scrollBy({ left: 400, behavior: 'smooth' })}
+                    className={`w-12 h-12 flex items-center justify-center rounded-xl border-2 transition-all cursor-pointer font-bold shadow-sm
               ${isValentinesPeriod()
-                ? 'border-red-400 text-red-500 hover:bg-red-500 hover:text-white'
-                : 'border-teal-500 text-teal-600 hover:bg-teal-500 hover:text-white'
-              }`}
-          >
-            &rarr;
-          </button>
-        </div>
-      )}
-    </div>
-
-    {/* Products Scroll */}
-    <div
-      ref={relatedScrollRef}
-      className="flex gap-6 overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-pink-400 scrollbar-track-transparent snap-x snap-mandatory"
-    >
-      {relatedProducts.map((p) => (
-        <div key={p.id} className="min-w-[280px] sm:min-w-[320px] snap-start relative">
-          {/* Heart on product card */}
-          {isValentinesPeriod() && (
-            <div className="absolute top-2 right-2 text-red-500 text-2xl animate-heartbeat">
-              ❤️
+                        ? 'border-red-400 text-red-500 hover:bg-red-500 hover:text-white'
+                        : 'border-teal-500 text-teal-600 hover:bg-teal-500 hover:text-white'
+                      }`}
+                  >
+                    &rarr;
+                  </button>
+                </div>
+              )}
             </div>
-          )}
-          <ProductCard product={p} hideCategory imageHeight={240} />
-        </div>
-      ))}
-    </div>
-  </div>
-)}
 
+            {/* Products Scroll */}
+            <div
+              ref={relatedScrollRef}
+              className="flex gap-6 overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-pink-400 scrollbar-track-transparent snap-x snap-mandatory"
+            >
+              {relatedProducts.map((p) => (
+                <div key={p.id} className="min-w-[280px] sm:min-w-[320px] snap-start relative">
+                  {/* Heart on product card */}
+                  {isValentinesPeriod() && (
+                    <div className="absolute top-2 right-2 text-red-500 text-2xl animate-heartbeat">
+                      ❤️
+                    </div>
+                  )}
+                  <ProductCard product={p} hideCategory imageHeight={240} />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
 
         {/* Best Sellers */}

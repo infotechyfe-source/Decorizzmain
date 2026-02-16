@@ -5,11 +5,11 @@ export const NEON_RATES = {
 };
 
 export const NEON_LANDSCAPE_SIZES = [
-  { width: 30, height: 8, label: '30" x 8"' },
-  { width: 40, height: 10, label: '40" x 10"' },
-  { width: 36, height: 12, label: '36" x 12"' },
-  { width: 48, height: 12, label: '48" x 12"' },
-  { width: 64, height: 16, label: '64" x 16"' },
+  { width: 30, height: 8, label: '8" x 30"' },
+  { width: 40, height: 10, label: '10" x 40"' },
+  { width: 36, height: 12, label: '12" x 36"' },
+  { width: 48, height: 12, label: '12" x 48"' },
+  { width: 64, height: 16, label: '16" x 64"' },
 ];
 
 export const NEON_SQUARE_SIZES = [
