@@ -83,6 +83,20 @@ function ChatBotWrapper() {
   return <ChatBot />;
 }
 
+// Facebook Pixel Route Tracker
+function FacebookPixelTracker() {
+  const location = useLocation();
+
+  useEffect(() => {
+    if ((window as any).fbq) {
+      (window as any).fbq('track', 'PageView');
+    }
+  }, [location]);
+
+  return null;
+}
+
+
 function App() {
   const [user, setUser] = useState<User | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
@@ -315,6 +329,7 @@ function App() {
         >
           <RouteLoader />
           <ScrollToTop />
+            <FacebookPixelTracker />
           <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<HomePage />} />

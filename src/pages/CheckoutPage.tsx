@@ -172,6 +172,13 @@ export default function CheckoutPage() {
             // Show success and navigate after delay
             toast.dismiss();
             toast.success('Payment successful! Redirecting...');
+            //META Purchase Event
+            if (typeof window !== "undefined" && (window as any).fbq) {
+              (window as any).fbq('track', 'Purchase', {
+                value: totalAmount,
+                currency: 'INR'
+              });
+            }
 
             setTimeout(() => {
               setProcessing(false);
@@ -276,6 +283,14 @@ export default function CheckoutPage() {
 
             toast.dismiss();
             toast.success('Advance paid. Remaining payable at delivery.');
+            //META Purchase Event for COD Advance
+            if (typeof window !== "undefined" && (window as any).fbq) {
+              (window as any).fbq('track', 'Purchase', {
+                value: advanceAmount,
+                currency: 'INR'
+              });
+            }
+
 
             setTimeout(() => {
               setProcessing(false);
@@ -400,6 +415,15 @@ export default function CheckoutPage() {
   const shipping = subtotal > 1000 ? 0 : shippingCost;
   const discount = passedDiscount || 0;
   const total = subtotal + shipping - discount;
+  // META InitiateCheckout Event
+  if (typeof window !== "undefined" && (window as any).fbq) {
+    (window as any).fbq('track', 'InitiateCheckout', {
+      value: total,
+      currency: 'INR',
+      num_items: cart?.items?.length || 0
+    });
+  }
+
   const productSavings = Math.round(subtotal * 0.15);
   const shippingSavings = subtotal > 1000 ? shippingCost : 0;
   const totalSavings = productSavings + shippingSavings + discount;

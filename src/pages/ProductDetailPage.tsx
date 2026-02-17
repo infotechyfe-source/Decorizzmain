@@ -32,7 +32,7 @@ import { SmoothImage } from '../components/SmoothImage';
 import { NEON_PRICE, FONTS_META, NEON_RATES, NEON_LANDSCAPE_SIZES, NEON_SQUARE_SIZES } from '../utils/neonConstants';
 import logo from '../assets/logo-r.png';
 import { useProduct, useBestSellers, useBudgetFinds, useAllProducts } from '../hooks/useProducts';
-import NeonProductDetails from "@/components/NeonProductDetails";
+import NeonProductDetails from "@/components/NeonProductdetails";
 
 export default function ProductDetailPage() {
   const { id, category: categoryParam, name: nameParam } = useParams();
