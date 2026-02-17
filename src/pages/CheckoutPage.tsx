@@ -42,6 +42,26 @@ export default function CheckoutPage() {
     fetchCart();
   }, [user]);
 
+  // META InitiateCheckout Event
+  useEffect(() => {
+    if (
+      cart &&
+      cart.items &&
+      cart.items.length > 0 &&
+      typeof window !== "undefined" &&
+      (window as any).fbq
+    ) {
+      const subtotal = getCartTotal();
+
+      (window as any).fbq('track', 'InitiateCheckout', {
+        value: subtotal,
+        currency: 'INR',
+        num_items: cart.items.length
+      });
+    }
+  }, [cart]);
+
+
   const fetchCart = async () => {
     try {
       const cartRes = await fetch(
@@ -291,7 +311,6 @@ export default function CheckoutPage() {
               });
             }
 
-
             setTimeout(() => {
               setProcessing(false);
               navigate(`/order-success/${data.order.id}`);
@@ -409,21 +428,11 @@ export default function CheckoutPage() {
     );
   }
 
-
   const subtotal = getCartTotal();
   const shippingCost = 49;
   const shipping = subtotal > 1000 ? 0 : shippingCost;
   const discount = passedDiscount || 0;
   const total = subtotal + shipping - discount;
-  // META InitiateCheckout Event
-  if (typeof window !== "undefined" && (window as any).fbq) {
-    (window as any).fbq('track', 'InitiateCheckout', {
-      value: total,
-      currency: 'INR',
-      num_items: cart?.items?.length || 0
-    });
-  }
-
   const productSavings = Math.round(subtotal * 0.15);
   const shippingSavings = subtotal > 1000 ? shippingCost : 0;
   const totalSavings = productSavings + shippingSavings + discount;
