@@ -83,50 +83,58 @@ export default function AdminOrders() {
     return (
         <AdminLayout title="Manage Orders">
 
-            {/* Top Controls */}
-            <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-200 shadow-sm mb-6 flex flex-col md:flex-row md:items-center gap-4">
-                {/* Search */}
-                <div className="relative w-full md:w-1/3">
-                    <span className="absolute inset-y-0 left-3 flex items-center text-slate-400"><Search className="w-5 h-5" /></span>
-                    <input
-                        type="text"
-                        placeholder="Search by Order ID, Name, Phone, Email..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none shadow-sm placeholder:text-slate-400 transition"
-                    />
-                </div>
+            {/* Top Controls - Premium UI */}
+            
+<div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-200 shadow-sm mb-6 flex items-center gap-4 flex-wrap">
 
-                {/* Delivery Status Filter */}
-                <div className="w-full md:w-1/6">
-                    <select
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}
-                        className="w-full px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none shadow-sm transition bg-white"
-                    >
-                        <option value="all">All Status</option>
-                        <option value="pending">Pending</option>
-                        <option value="processing">Processing</option>
-                        <option value="shipped">Shipped</option>
-                        <option value="delivered">Delivered</option>
-                        <option value="cancelled">Cancelled</option>
-                    </select>
-                </div>
+  {/* Search Box */}
+  <div className="flex-1 min-w-[220px] relative">
+    <span className="absolute inset-y-0 left-3 flex items-center text-slate-400">
+      <Search className="w-5 h-5" />
+    </span>
+    <input
+      type="text"
+      placeholder="Search by Order ID, Name, Phone, Email..."
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+      className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none shadow-sm placeholder:text-slate-400 transition hover:border-slate-400"
+    />
+  </div>
 
-                {/* Payment Status Filter */}
-                <div className="w-full md:w-1/6">
-                    <select
-                        value={paymentFilter}
-                        onChange={(e) => setPaymentFilter(e.target.value)}
-                        className="w-full px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none shadow-sm transition bg-white"
-                    >
-                        <option value="all">All Payments</option>
-                        <option value="pending">Pending</option>
-                        <option value="completed">Completed</option>
-                        <option value="failed">Failed</option>
-                    </select>
-                </div>
-            </div>
+  {/* Delivery Status Filter */}
+  <div className="w-44 relative">
+    <select
+      value={statusFilter}
+      onChange={(e) => setStatusFilter(e.target.value)}
+      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none shadow-sm bg-white hover:border-slate-400 transition cursor-pointer"
+    >
+      <option value="all">All Status</option>
+      <option value="pending">Pending</option>
+      <option value="processing">Processing</option>
+      <option value="shipped">Shipped</option>
+      <option value="delivered">Delivered</option>
+      <option value="cancelled">Cancelled</option>
+    </select>
+  </div>
+
+  {/* Payment Status Filter */}
+  <div className="w-44 relative">
+    <select
+      value={paymentFilter}
+      onChange={(e) => setPaymentFilter(e.target.value)}
+      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none shadow-sm bg-white hover:border-slate-400 transition cursor-pointer"
+    >
+      <option value="all">All Payments</option>
+      <option value="pending">Pending</option>
+      <option value="completed">Completed</option>
+      <option value="failed">Failed</option>
+    </select>
+  </div>
+
+</div>
+
+
+
 
             {/* Orders List */}
             {loading ? (
@@ -141,26 +149,35 @@ export default function AdminOrders() {
                         return (
                             <div key={order.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition">
 
-                                {/* Header */}
+                                {/* Header: Order Info Row */}
                                 <div
-                                    className="bg-white p-4 md:p-6 border-b border-slate-200 cursor-pointer hover:bg-slate-50 transition flex flex-col md:flex-row md:items-center justify-between gap-4"
+                                    className="flex items-center justify-between bg-white p-4 md:p-6 border-b border-slate-200 rounded-t-xl cursor-pointer hover:bg-slate-50 transition"
                                     onClick={() => toggleOrderExpand(order.id)}
                                 >
-                                    {/* Left: Order Info */}
-                                    <div className="flex items-start md:items-center gap-4">
+                                    {/* Left: Icon + Order Info */}
+                                    <div className="flex items-center gap-4 min-w-0">
                                         {/* Icon */}
                                         <div className="bg-teal-50 p-3 rounded-2xl text-teal-600 flex items-center justify-center shadow-sm">
                                             <Package className="w-6 h-6" />
                                         </div>
 
                                         {/* Order Details */}
-                                        <div className="min-w-0">
-                                            <h3 className="text-lg md:text-xl font-semibold text-slate-900 flex flex-wrap items-center gap-2">
-                                                <span className="truncate">Order #{order.id.slice(0, 8)}...</span>
+                                        <div className="flex flex-col md:flex-row md:items-center gap-4 min-w-0">
+                                            {/* Order ID */}
 
-                                                {/* Delivery Status Badge */}
+                                            <span className="text-lg md:text-xl font-semibold text-slate-900">
+                                                {order.id}
+                                            </span>
+                                            {/* Customer & Date */}
+                                            <p className="text-slate-500 text-sm md:text-base truncate">
+                                                {order.shippingAddress?.fullName} • {new Date(order.createdAt).toLocaleDateString()}
+                                            </p>
+
+                                            {/* Badges */}
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                                {/* Delivery Status */}
                                                 <span
-                                                    className={`text-xs font-medium px-2 py-0.5 rounded-full border shadow-sm ${order.status === 'delivered'
+                                                    className={`text-xs md:text-sm font-semibold px-2 py-1 rounded-full border shadow-sm ${order.status === 'delivered'
                                                         ? 'bg-green-100 text-green-700 border-green-200'
                                                         : order.status === 'cancelled'
                                                             ? 'bg-red-100 text-red-700 border-red-200'
@@ -170,9 +187,9 @@ export default function AdminOrders() {
                                                     {order.status}
                                                 </span>
 
-                                                {/* Payment Status Badge */}
+                                                {/* Payment Status */}
                                                 <span
-                                                    className={`text-xs font-medium px-2 py-0.5 rounded-full border shadow-sm ${order.paymentStatus === 'completed'
+                                                    className={`text-xs md:text-sm font-semibold px-2 py-1 rounded-full border shadow-sm ${order.paymentStatus === 'completed'
                                                         ? 'bg-green-100 text-green-700 border-green-200'
                                                         : order.paymentStatus === 'failed'
                                                             ? 'bg-red-100 text-red-700 border-red-200'
@@ -181,29 +198,27 @@ export default function AdminOrders() {
                                                 >
                                                     {order.paymentStatus || 'pending'}
                                                 </span>
-                                            </h3>
+                                            </div>
 
-                                            {/* Customer Name & Date */}
-                                            <p className="text-slate-500 text-sm mt-1 md:mt-0 truncate">
-                                                {order.shippingAddress?.fullName} • {new Date(order.createdAt).toLocaleDateString()}
-                                            </p>
+
                                         </div>
                                     </div>
 
-                                    {/* Right: Total & Expand */}
-                                    <div className="flex items-center gap-4 mt-2 md:mt-0">
-                                        {/* Total Amount */}
+                                    {/* Right: Total + Items + Expand */}
+                                    <div className="flex items-center gap-6 flex-shrink-0">
+                                        {/* Total & Items */}
                                         <div className="text-right">
-                                            <p className="text-xl md:text-2xl font-bold text-teal-600">₹{order.total?.toFixed(0)}</p>
-                                            <p className="text-xs text-slate-400">{order.items?.length || 0} items</p>
+                                            <p className="text-lg md:text-xl font-bold text-teal-600">₹{order.total?.toFixed(0)}</p>
+                                            <p className="text-xs md:text-sm text-slate-400">{order.items?.length || 0} items</p>
                                         </div>
 
                                         {/* Expand/Collapse Icon */}
-                                        <div className="p-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
+                                        <div className="p-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition flex items-center justify-center">
                                             {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
                                         </div>
                                     </div>
                                 </div>
+
 
 
                                 {/* Expanded Content */}

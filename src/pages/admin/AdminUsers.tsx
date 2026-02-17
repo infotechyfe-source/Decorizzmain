@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import AdminLayout from "../../components/admin/AdminLayout";
 import { AuthContext } from '../../context/AuthContext';
 import { projectId } from "../../utils/supabase/info";
-import { Search, User, Mail, Calendar } from "lucide-react";
+import { Search, User, Mail, Calendar, Trash2, Pencil } from "lucide-react";
 
 export default function AdminUsers() {
   const { accessToken, isLoading } = useContext(AuthContext);
@@ -22,9 +22,7 @@ export default function AdminUsers() {
       const response = await fetch(
         `https://${projectId}.supabase.co/functions/v1/make-server-52d68140/users`,
         {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
+          headers: { Authorization: `Bearer ${accessToken}` },
         }
       );
 
@@ -41,16 +39,37 @@ export default function AdminUsers() {
   const initDefaultUsers = async () => {
     try {
       setInitLoading(true);
-      const res = await fetch(`https://${projectId}.supabase.co/functions/v1/make-server-52d68140/auth/init-admin`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${accessToken}` }
-      });
+      const res = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-52d68140/auth/init-admin`,
+        { method: 'POST', headers: { Authorization: `Bearer ${accessToken}` } }
+      );
       await res.json();
       await fetchUsers();
     } catch (e) {
       console.error('Init admin error:', e);
     } finally {
       setInitLoading(false);
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
+
+    try {
+      const res = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-52d68140/users/${userId}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
+
+      if (!res.ok) throw new Error("Failed to delete user");
+
+      setUsers(prev => prev.filter(u => u.id !== userId));
+    } catch (err) {
+      console.error("Delete user error:", err);
+      alert("Failed to delete user. Check console.");
     }
   };
 
@@ -85,7 +104,11 @@ export default function AdminUsers() {
           </div>
           <p className="text-slate-500 text-lg">No users found.</p>
           <div className="mt-6">
-            <button onClick={initDefaultUsers} className="px-4 py-2 rounded-lg bg-teal-600 text-white font-semibold" disabled={initLoading}>
+            <button
+              onClick={initDefaultUsers}
+              className="px-4 py-2 rounded-lg bg-teal-600 text-white font-semibold"
+              disabled={initLoading}
+            >
               {initLoading ? 'Initializing...' : 'Initialize Default Users'}
             </button>
           </div>
@@ -99,15 +122,13 @@ export default function AdminUsers() {
                   <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">User</th>
                   <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Email</th>
                   <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Joined At</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
 
               <tbody className="bg-white divide-y divide-slate-100">
                 {filteredUsers.map((user) => (
-                  <tr
-                    key={user.id}
-                    className="hover:bg-slate-50 transition"
-                  >
+                  <tr key={user.id} className="hover:bg-slate-50 transition">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center border border-teal-100">
@@ -131,6 +152,22 @@ export default function AdminUsers() {
                           ? new Date(user.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
                           : "-"}
                       </div>
+                    </td>
+
+                    {/* Actions */}
+                    <td className="px-6 py-4 whitespace-nowrap flex items-center gap-2">
+                      {/* Edit Button */}
+                      <button className="p-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition">
+                        <Pencil className="w-4 h-4" />
+                      </button>
+
+                      {/* Delete Button */}
+                      <button
+                        onClick={() => handleDeleteUser(user.id)}
+                        className="p-2 rounded-lg bg-red-600 hover:bg-red-700 text-white transition"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </td>
                   </tr>
                 ))}

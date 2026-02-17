@@ -99,12 +99,11 @@ export default function AdminSidebar({ onSidebarWidthChange }: AdminSidebarProps
         ></div>
       )}
 
-      {/* SIDEBAR */}
       <aside
         className={`
-          admin-sidebar fixed inset-y-0 left-0 bg-gray-900 text-white shadow-xl z-50
-          transition-transform duration-300 flex flex-col will-change-transform
-          ${isMobile
+    admin-sidebar fixed inset-y-0 left-0 bg-gray-900 text-white shadow-xl z-50
+    transition-transform duration-300 flex flex-col
+    ${isMobile
             ? mobileOpen
               ? "sidebar-mobile-shown w-64"
               : "sidebar-mobile-hidden w-64"
@@ -112,12 +111,11 @@ export default function AdminSidebar({ onSidebarWidthChange }: AdminSidebarProps
               ? "sidebar-desktop-mini"
               : "sidebar-desktop-full"
           }
-        `}
+  `}
       >
         {/* HEADER */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-700">
+        <div className="flex items-center justify-between p-6 border-b border-gray-700 flex-shrink-0">
           {!collapsed && <h2 className="text-xl font-semibold">Admin Panel</h2>}
-
           {isMobile && (
             <X
               className="w-6 h-6 text-gray-300 cursor-pointer"
@@ -126,17 +124,16 @@ export default function AdminSidebar({ onSidebarWidthChange }: AdminSidebarProps
           )}
         </div>
 
-        {/* MENU ITEMS */}
-        <nav className="flex-1 px-3 py-4 space-y-2 overflow-y-auto pr-2">
+        {/* MENU ITEMS - SCROLLABLE */}
+        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-2">
           {menuItems.map(({ label, icon: Icon, path }) => {
             const active = location.pathname === path;
-
             return (
               <Link
                 key={path}
                 to={path}
                 onClick={() => isMobile && setMobileOpen(false)}
-                className={`admin-nav-item flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${active ? "active" : "text-gray-300 hover:bg-gray-800"
+                className={`admin-nav-item flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${active ? "bg-gray-800 text-white" : "text-gray-300 hover:bg-gray-800"
                   }`}
               >
                 <Icon className="menu-icon w-5 h-5" />
@@ -147,7 +144,7 @@ export default function AdminSidebar({ onSidebarWidthChange }: AdminSidebarProps
         </nav>
 
         {/* LOGOUT */}
-        <div className="p-4 border-t border-gray-700">
+        <div className="p-4 border-t border-gray-700 flex-shrink-0">
           <button
             onClick={logout}
             className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 transition"
@@ -157,6 +154,7 @@ export default function AdminSidebar({ onSidebarWidthChange }: AdminSidebarProps
           </button>
         </div>
       </aside>
+
     </>
   );
 }
