@@ -307,6 +307,35 @@ app.get('/make-server-52d68140/users', async (c) => {
   }
 });
 
+// Admin: Delete User
+app.delete('/make-server-52d68140/users/:id', async (c) => {
+  try {
+    const userId = c.req.param('id');
+    if (!userId) return c.json({ error: 'User ID required' }, 400);
+
+    // Optional: check admin access
+    const admin = await verifyAdmin(c.req.raw);
+    if (!admin) return c.json({ error: 'Unauthorized' }, 403);
+
+    // 1️⃣ Delete from KV store
+    await kv.delete(`user:${userId}`);
+
+    // 2️⃣ Delete from Supabase Auth
+    const { error } = await supabase.auth.admin.deleteUser(userId);
+    if (error) {
+      console.error('Supabase delete error:', error.message);
+      return c.json({ error: error.message }, 500);
+    }
+
+    return c.json({ success: true, message: 'User deleted successfully' });
+  } catch (err) {
+    console.error('Delete user error:', err);
+    return c.json({ error: 'Failed to delete user' }, 500);
+  }
+});
+
+
+
 // Products Routes
 app.get('/make-server-52d68140/products/lightweight', async (c) => {
   try {
@@ -604,7 +633,6 @@ app.get('/make-server-52d68140/products/:id', async (c) => {
   }
 });
 
-
 // Cloudinary credentials (read from environment)
 const CLOUDINARY_CLOUD_NAME = Deno.env.get('CLOUDINARY_CLOUD_NAME') ?? '';
 const CLOUDINARY_API_KEY = Deno.env.get('CLOUDINARY_API_KEY') ?? '';
@@ -841,7 +869,6 @@ app.delete('/make-server-52d68140/wishlist/:productId', async (c) => {
     return c.json({ error: 'Failed to remove from wishlist' }, 500);
   }
 });
-
 
 // Email notification function
 async function sendOrderEmail(orderData: any, userEmail: string) {
@@ -1580,8 +1607,6 @@ async function createNotification(userId: string, type: string, title: string, m
   console.log(`Notification created for user ${userId}: ${title}`);
 }
 
-
-
 // Gallery Upload - Now using Cloudinary
 app.post("/make-server-52d68140/gallery/upload", async (c) => {
   try {
@@ -1695,9 +1720,6 @@ app.delete('/make-server-52d68140/gallery/:id', async (c) => {
     return c.json({ error: "Failed to delete" }, 500);
   }
 });
-
-
-
 
 // Payment Routes
 app.get('/make-server-52d68140/payments', async (c) => {

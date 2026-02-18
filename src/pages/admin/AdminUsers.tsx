@@ -6,7 +6,6 @@ import { Search, User, Mail, Calendar, Trash2, Pencil } from "lucide-react";
 
 export default function AdminUsers() {
   const { accessToken, isLoading } = useContext(AuthContext);
-
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -21,11 +20,8 @@ export default function AdminUsers() {
     try {
       const response = await fetch(
         `https://${projectId}.supabase.co/functions/v1/make-server-52d68140/users`,
-        {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        }
+        { headers: { Authorization: `Bearer ${accessToken}` } }
       );
-
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Failed to load users');
       setUsers(data.users || []);
@@ -52,28 +48,8 @@ export default function AdminUsers() {
     }
   };
 
-  const handleDeleteUser = async (userId: string) => {
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
 
-    try {
-      const res = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/make-server-52d68140/users/${userId}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${accessToken}` },
-        }
-      );
-
-      if (!res.ok) throw new Error("Failed to delete user");
-
-      setUsers(prev => prev.filter(u => u.id !== userId));
-    } catch (err) {
-      console.error("Delete user error:", err);
-      alert("Failed to delete user. Check console.");
-    }
-  };
-
-  const filteredUsers = users.filter((u) =>
+  const filteredUsers = users.filter(u =>
     u.email?.toLowerCase().includes(search.toLowerCase()) ||
     u.name?.toLowerCase().includes(search.toLowerCase())
   );
@@ -92,7 +68,7 @@ export default function AdminUsers() {
         />
       </div>
 
-      {/* Users List */}
+      {/* Users Table */}
       {loading ? (
         <div className="flex justify-center py-20">
           <div className="h-10 w-10 border-b-2 border-teal-600 rounded-full animate-spin"></div>
@@ -106,7 +82,7 @@ export default function AdminUsers() {
           <div className="mt-6">
             <button
               onClick={initDefaultUsers}
-              className="px-4 py-2 rounded-lg bg-teal-600 text-white font-semibold"
+              className="px-4 py-2 rounded-lg bg-teal-600 text-white font-semibold hover:bg-teal-700 transition"
               disabled={initLoading}
             >
               {initLoading ? 'Initializing...' : 'Initialize Default Users'}
@@ -117,57 +93,54 @@ export default function AdminUsers() {
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-200">
-              <thead className="bg-slate-50/50">
+              <thead className="bg-slate-50 sticky top-0 z-10">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">User</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Email</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Joined At</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Actions</th>
+                  {["User", "Email", "Joined At"].map((title) => (
+                    <th
+                      key={title}
+                      className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider"
+                    >
+                      {title}
+                    </th>
+                  ))}
                 </tr>
               </thead>
 
               <tbody className="bg-white divide-y divide-slate-100">
-                {filteredUsers.map((user) => (
+                {filteredUsers.map(user => (
                   <tr key={user.id} className="hover:bg-slate-50 transition">
+                    {/* User Name */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center border border-teal-100">
                           <User className="w-5 h-5" />
                         </div>
-                        <span className="font-semibold text-slate-900">{user.name || "Unnamed User"}</span>
+                        <span className="font-semibold text-slate-900 truncate max-w-[150px]">
+                          {user.name || "Unnamed User"}
+                        </span>
                       </div>
                     </td>
 
+                    {/* Email */}
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                      <div className="flex items-center gap-2">
-                        <Mail className="w-4 h-4 text-slate-400" />
+                      <div className="flex items-center gap-2 truncate max-w-[200px]">
+                        <Mail className="w-4 h-4 text-slate-400 flex-shrink-0" />
                         {user.email}
                       </div>
                     </td>
 
+                    {/* Joined At */}
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                       <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4 text-slate-400" />
                         {user.createdAt
-                          ? new Date(user.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
+                          ? new Date(user.createdAt).toLocaleDateString(undefined, {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                            })
                           : "-"}
                       </div>
-                    </td>
-
-                    {/* Actions */}
-                    <td className="px-6 py-4 whitespace-nowrap flex items-center gap-2">
-                      {/* Edit Button */}
-                      <button className="p-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition">
-                        <Pencil className="w-4 h-4" />
-                      </button>
-
-                      {/* Delete Button */}
-                      <button
-                        onClick={() => handleDeleteUser(user.id)}
-                        className="p-2 rounded-lg bg-red-600 hover:bg-red-700 text-white transition"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
                     </td>
                   </tr>
                 ))}
