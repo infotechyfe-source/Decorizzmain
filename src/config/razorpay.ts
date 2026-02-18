@@ -1,6 +1,6 @@
 export const RAZORPAY_CONFIG = {
   // Only KEY_ID is safe to use in frontend test api rzp_test_RbFD9b67kdd1Br
-  KEY_ID: (import.meta as any).env?.VITE_RAZORPAY_KEY_ID || 'rzp_live_RlVWaYWKnxUru5',
+  KEY_ID: (import.meta as any).env?.VITE_RAZORPAY_KEY_ID || 'rzp_live_SHZvXDZ3pfeaNa',
 
   COMPANY_NAME: 'Decorizz',
   COMPANY_LOGO: '../assets/logo-r.png',
