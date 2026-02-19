@@ -11,7 +11,7 @@ import owlImg from "../assets/owl.jpg";
 import image1 from "../assets/1.jpg";
 import image2 from "../assets/2.jpg";
 import image3 from "../assets/3.jpg";
-import image4 from "../assets/4.jpg";
+import image4 from "../assets/5.jpg";
 import logor from "../assets/logo.png";
 
 export default function AboutPage() {
@@ -31,6 +31,87 @@ export default function AboutPage() {
             </p>
           </div>
         </div>
+      </section>
+
+      {/* CREATIVE FOUNDER SECTION */}
+      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+
+        {/* Background Glow Effect */}
+        <div className="absolute inset-0 flex justify-center">
+          <div className="w-[500px] h-[500px] bg-[#14b8a6]/10 blur-[120px] rounded-full"></div>
+        </div>
+
+        <TiltCard className="relative premium-card-glow p-8 sm:p-14 animate-fade-scale overflow-hidden">
+
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+
+            {/* LEFT - IMAGE SIDE */}
+            <div className="relative group">
+
+              <div className="absolute -inset-3 bg-gradient-to-r from-[#14b8a6] to-[#3b2f27] rounded-3xl blur-xl opacity-20 group-hover:opacity-40 transition duration-500"></div>
+
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl">
+                <img
+                  src={lordramaImg}
+                  alt="Founder"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+              </div>
+
+              {/* Floating Badge */}
+              <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-lg px-4 py-2 rounded-xl shadow-md">
+                <p className="text-sm font-semibold text-[#14b8a6]">
+                  Founder & Director
+                </p>
+              </div>
+            </div>
+
+            {/* RIGHT - CONTENT SIDE */}
+            <div className="space-y-6">
+
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">
+                The Vision Behind <span className="text-gradient-teal">Decorizz</span>
+              </h2>
+
+              <h3 className="text-xl font-semibold text-[#14b8a6]">
+                Mohit Mandal
+              </h3>
+
+              <p className="text-base leading-relaxed text-gray-600">
+                Decorizz began as more than just a business — it started as a passion
+                for meaningful design. With a deep love for aesthetics and storytelling,
+                Mohit envisioned a brand where art doesn’t just decorate walls,
+                but transforms spaces into experiences.
+              </p>
+
+              <p className="text-base leading-relaxed text-gray-600">
+                Every collection is personally reviewed to ensure originality,
+                emotional impact, and premium quality — because creativity
+                should never feel generic.
+              </p>
+
+              {/* Elegant Quote Card */}
+              <div className="bg-gradient-to-r from-[#14b8a6]/10 to-transparent p-6 rounded-2xl border-l-4 border-[#14b8a6]">
+                <p className="italic text-[#14b8a6] text-lg">
+                  “Design is not just what you see — it's what you feel.”
+                </p>
+              </div>
+
+              {/* Stats */}
+              <div className="flex gap-10 pt-4">
+                <div>
+                  <p className="text-3xl font-bold text-[#14b8a6]">5+</p>
+                  <p className="text-sm text-gray-500">Years Creative Experience</p>
+                </div>
+                <div>
+                  <p className="text-3xl font-bold text-[#14b8a6]">5000+</p>
+                  <p className="text-sm text-gray-500">Satisfied Customers</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </TiltCard>
       </section>
 
       {/* WHO WE ARE */}
