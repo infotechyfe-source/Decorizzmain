@@ -1,5 +1,5 @@
 User-agent: *
-Allow: /
+Allow: 
 
 # Block admin pages
 Disallow: /admin
