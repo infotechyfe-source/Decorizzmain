@@ -5,33 +5,41 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- ✅ UPDATED CONTENT SECURITY POLICY (Facebook Added Only) -->
+  <!-- ✅ UPDATED CONTENT SECURITY POLICY (Google Added) -->
   <meta http-equiv="Content-Security-Policy"
     content="default-src 'self' blob:;
-    script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://*.supabase.co https://*.razorpay.com https://www.youtube.com https://connect.facebook.net;
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://*.supabase.co https://*.razorpay.com https://www.youtube.com https://connect.facebook.net https://www.googletagmanager.com https://www.google-analytics.com;
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-    img-src 'self' data: blob: https://*.supabase.co https://res.cloudinary.com https://i.ytimg.com https://via.placeholder.com https://*.cloudinary.com https://placehold.co https://www.facebook.com;
+    img-src 'self' data: blob: https://*.supabase.co https://res.cloudinary.com https://i.ytimg.com https://via.placeholder.com https://*.cloudinary.com https://placehold.co https://www.facebook.com https://www.google-analytics.com;
     font-src 'self' data: https://fonts.gstatic.com;
-    connect-src 'self' https://*.supabase.co https://api.cloudinary.com https://*.cloudinary.com https://*.razorpay.com https://connect.facebook.net wss://*.supabase.co;
-    frame-src 'self' https://*.razorpay.com https://www.youtube.com https://youtube.com;
+    connect-src 'self' https://*.supabase.co https://api.cloudinary.com https://*.cloudinary.com https://*.razorpay.com https://connect.facebook.net https://www.google-analytics.com https://www.googletagmanager.com wss://*.supabase.co;
+    frame-src 'self' https://*.razorpay.com https://www.youtube.com https://youtube.com https://www.googletagmanager.com;
     worker-src 'self' blob:;
     media-src 'self' blob: data: https://*.supabase.co https://*.cloudinary.com https://res.cloudinary.com;" />
 
-  <!-- Primary Meta Tags -->
   <title>Decorizz - Premium Wall Frames & Canvas Art | 300+ Modern Designs</title>
-  <meta name="title" content="Decorizz - Premium Wall Frames & Canvas Art | 300+ Modern Designs" />
-  <meta name="description"
-    content="Discover 300+ premium wall frames and canvas art for your home decor. Ethically sourced, handcrafted by skilled artisans. Shop modern, contemporary designs for living rooms, bedrooms & offices." />
-  <meta name="keywords"
-    content="wall frames, canvas art, home decor, premium frames, modern wall art, living room decor, handcrafted frames, photo frames, decorative frames, interior design" />
-  <meta name="author" content="Decorizz" />
-  <meta name="robots" content="index, follow" />
-  <meta name="theme-color" content="#14b8a6" />
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="/src/assets/favicon.png" />
+  <!--  GOOGLE TAG MANAGER -->
+  <script>
+    (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-56PJTN4R');
+  </script>
+  <!-- END GOOGLE TAG MANAGER -->
 
-  <!-- ✅ META PIXEL ADDED -->
+  <!--  GOOGLE ANALYTICS (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-C3Q69YSRKL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-C3Q69YSRKL');
+  </script>
+  <!-- END GOOGLE ANALYTICS -->
+
+  <!--  META PIXEL -->
   <script>
     !function (f, b, e, v, n, t, s) {
       if (f.fbq) return; n = f.fbq = function () {
@@ -55,48 +63,18 @@
   </script>
   <!-- END META PIXEL -->
 
-  <!-- Open Graph / Facebook -->
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://decorizz.com/" />
-  <meta property="og:title" content="Decorizz - Premium Wall Frames & Canvas Art" />
-  <meta property="og:description"
-    content="Discover 300+ premium wall frames and canvas art for your home decor. Ethically sourced, handcrafted designs." />
-  <meta property="og:image" content="/og-image.jpg" />
-  <meta property="og:site_name" content="Decorizz" />
-
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:url" content="https://decorizz.com/" />
-  <meta name="twitter:title" content="Decorizz - Premium Wall Frames & Canvas Art" />
-  <meta name="twitter:description"
-    content="Discover 300+ premium wall frames and canvas art for your home decor. Ethically sourced, handcrafted designs." />
-  <meta name="twitter:image" content="/og-image.jpg" />
-
-  <!-- Canonical URL -->
-  <link rel="canonical" href="https://decorizz.com/" />
-
-  <!-- Preconnect to External Domains -->
-  <link rel="dns-prefetch" href="https://wievhaxedotrhktkjupg.supabase.co" />
-  <link rel="preconnect" href="https://wievhaxedotrhktkjupg.supabase.co" crossorigin />
-  <link rel="preconnect" href="https://checkout.razorpay.com" crossorigin />
-  <link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
-  <link rel="dns-prefetch" href="https://res.cloudinary.com" />
-  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-
-  <!-- Font Preloading -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Pacifico&family=Lobster&family=Caveat:wght@400;600&family=Bebas+Neue&family=Montserrat:wght@400;600;700&family=Poppins:wght@400;600;700&family=Playfair+Display:wght@400;700&family=Dancing+Script:wght@400;700&family=Kaushan+Script&family=Sacramento&family=Noto+Rashi+Hebrew:wght@400;500;600;700&display=swap"
-    rel="stylesheet">
-
-  <!-- (All Your Structured Data Scripts Remain Exactly Same) -->
-
 </head>
 
 <body>
 
-  <!--  NOSCRIPT PIXEL ADDED -->
+  <!--  GOOGLE TAG MANAGER (noscript) -->
+  <noscript>
+    <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-56PJTN4R"
+      height="0" width="0" style="display:none;visibility:hidden"></iframe>
+  </noscript>
+  <!-- END GOOGLE TAG MANAGER (noscript) -->
+
+  <!-- META PIXEL NOSCRIPT -->
   <noscript>
     <img height="1" width="1" style="display:none"
       src="https://www.facebook.com/tr?id=1441541263987959&ev=PageView&noscript=1" />
