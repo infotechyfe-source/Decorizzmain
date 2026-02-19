@@ -82,6 +82,7 @@ export function Footer() {
                   </div>
                   <div>
                     <p className="text-sm" style={{ fontWeight: 700 }}>Mail Us</p>
+                    <p className="hover:text-teal-600 transition-colors">mohit@decorizz.com</p>
                     <p className="hover:text-teal-600 transition-colors">info@decorizz.com</p>
                   </div>
                 </a>

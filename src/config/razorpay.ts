@@ -6,6 +6,3 @@ export const RAZORPAY_CONFIG = {
   COMPANY_LOGO: '../assets/logo-r.png',
   THEME_COLOR: '#14b8a6',
 };
-
-// IMPORTANT: Never put KEY_SECRET in frontend!
-// KEY_SECRET should only be in backend (Supabase Edge Function)

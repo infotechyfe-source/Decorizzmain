@@ -222,7 +222,7 @@ export default function AboutPage() {
               </div>
               <div>
                 <p className="text-lg font-semibold" style={{ color: '#1f2937' }}>Email Address</p>
-                <p className="text-sm mt-1" style={{ color: '#4b5563' }}>Contact@decorizz.com</p>
+                <p className="text-sm mt-1" style={{ color: '#4b5563' }}>support@decorizz.com</p>
               </div>
             </div>
           </TiltCard>
