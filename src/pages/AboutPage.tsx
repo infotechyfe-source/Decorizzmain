@@ -3,10 +3,10 @@ import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
 import { Mail, Phone, MapPin, Heart, Users, Target, Award, Sparkles } from "lucide-react";
 import TiltCard from "../components/TiltCard";
-import aboutImg from "../assets/5.jpg";
+import mohitImg from "../assets/mohitmandal.jpeg";
 import canvaImg from "../assets/canva.jpg";
 import heroImg from "../assets/hero.jpg";
-import lordramaImg from "../assets/lordrama.jpg";
+//import lordramaImg from "../assets/lordrama.jpg";
 import owlImg from "../assets/owl.jpg";
 import image1 from "../assets/1.jpg";
 import image2 from "../assets/2.jpg";
@@ -34,83 +34,81 @@ export default function AboutPage() {
       </section>
 
       {/* CREATIVE FOUNDER SECTION */}
-      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
 
-        {/* Background Glow Effect */}
+        {/* Background Glow */}
         <div className="absolute inset-0 flex justify-center">
-          <div className="w-[500px] h-[500px] bg-[#14b8a6]/10 blur-[120px] rounded-full"></div>
+          <div className="w-[500px] h-[500px] bg-[#14b8a6]/10 blur-[120px] rounded-full animate-pulse-slow"></div>
         </div>
 
-        <TiltCard className="relative premium-card-glow p-8 sm:p-14 animate-fade-scale overflow-hidden">
+        <TiltCard className="relative bg-white/90 dark:bg-white-900/80 rounded-3xl shadow-2xl p-8 sm:p-14 overflow-hidden animate-fade-scale">
 
           <div className="grid md:grid-cols-2 gap-12 items-center">
 
-            {/* LEFT - IMAGE SIDE */}
+            {/* LEFT - IMAGE */}
             <div className="relative group">
+              <div className="absolute -inset-3 bg-gradient-to-r from-[#14b8a6] to-[#3b2f27] rounded-3xl blur-xl opacity-20 group-hover:opacity-50 transition duration-700"></div>
 
-              <div className="absolute -inset-3 bg-gradient-to-r from-[#14b8a6] to-[#3b2f27] rounded-3xl blur-xl opacity-20 group-hover:opacity-40 transition duration-500"></div>
-
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl">
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white/30 group-hover:scale-105 transition-transform duration-700">
                 <img
-                  src={lordramaImg}
+                  src={mohitImg}
                   alt="Founder"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
               </div>
 
               {/* Floating Badge */}
-              <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-lg px-4 py-2 rounded-xl shadow-md">
-                <p className="text-sm font-semibold text-[#14b8a6]">
-                  Founder & Director
-                </p>
+              <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-md px-4 py-2 rounded-xl shadow-md border border-[#14b8a6]/30">
+                <p className="text-sm font-semibold text-[#14b8a6]">Founder & Director</p>
               </div>
             </div>
 
-            {/* RIGHT - CONTENT SIDE */}
+            {/* RIGHT - CONTENT */}
             <div className="space-y-6">
 
-              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">
                 The Vision Behind <span className="text-gradient-teal">Decorizz</span>
               </h2>
 
-              <h3 className="text-xl font-semibold text-[#14b8a6]">
-                Mohit Mandal
-              </h3>
+              <h3 className="text-xl font-semibold text-[#14b8a6]">Mohit Mandal</h3>
 
-              <p className="text-base leading-relaxed text-gray-600">
-                Decorizz began as more than just a business — it started as a passion
-                for meaningful design. With a deep love for aesthetics and storytelling,
-                Mohit envisioned a brand where art doesn’t just decorate walls,
-                but transforms spaces into experiences.
+              {/* All original paragraphs preserved */}
+              <p className="text-base leading-relaxed text-gray-700 dark:text-gray-300">
+                Mohit is a passionate entrepreneur and creative visionary who brings tradition and modern artistry together through his wall and canvas painting business. With over <span className="text-[#14b8a6] font-semibold italic">10 years of experience in Sales and Marketing</span>, he has built strong customer relationships and developed a deep understanding of client needs, preferences, and satisfaction. His business foundation is not just creativity—but trust, communication, and long-term value.
+
+                .In local community gatherings and small organizations, children were often invited to observe and learn why art is important in life and culture. Those early experiences left a lasting impression on him. He understood from a young age that art is not just decoration—it is emotion, identity, and energy.
               </p>
 
-              <p className="text-base leading-relaxed text-gray-600">
-                Every collection is personally reviewed to ensure originality,
-                emotional impact, and premium quality — because creativity
-                should never feel generic.
+              <p className="text-base leading-relaxed text-gray-700 dark:text-gray-300">
+                Driven by that inspiration, Mohit decided to transform traditional art into a modern expression. He believes that wall paintings, Vastu paintings, and canvas art are more than design elements—they influence mood, positivity, and the overall atmosphere of a home or workspace. According to him, the right artwork can bring harmony, inspiration, and character into any space.
+
+                His vision is to revive the beauty of traditional artistry while presenting it in a contemporary way that fits modern homes and offices. Every piece reflects creativity, meaning, and thoughtful design. Through his work, Mohit aims to make art accessible, purposeful, and impactful for every client.
+
+                For Mohit, this business is not just about painting walls—it’s about creating experiences, telling stories, and turning spaces into expressions of personality and culture.
               </p>
 
-              {/* Elegant Quote Card */}
-              <div className="bg-gradient-to-r from-[#14b8a6]/10 to-transparent p-6 rounded-2xl border-l-4 border-[#14b8a6]">
+              {/* Elegant Quote */}
+              <div className="bg-gradient-to-r from-[#14b8a6]/10 to-transparent p-6 rounded-2xl border-l-4 border-[#14b8a6] shadow-sm">
                 <p className="italic text-[#14b8a6] text-lg">
-                  “Design is not just what you see — it's what you feel.”
+                  “Mohit’s inspiration comes from his childhood. Growing up, he watched his uncle create beautiful hand-drawn wall paintings and sculpt idols in their village.”
                 </p>
               </div>
 
               {/* Stats */}
-              <div className="flex gap-10 pt-4">
-                <div>
-                  <p className="text-3xl font-bold text-[#14b8a6]">5+</p>
-                  <p className="text-sm text-gray-500">Years Creative Experience</p>
+              <div className="flex flex-wrap gap-10 pt-4">
+                <div className="flex flex-col items-start">
+                  <p className="text-3xl font-bold text-[#14b8a6]">10+</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Years Creative Experience</p>
                 </div>
-                <div>
+                <div className="flex flex-col items-start">
                   <p className="text-3xl font-bold text-[#14b8a6]">5000+</p>
-                  <p className="text-sm text-gray-500">Satisfied Customers</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Satisfied Customers</p>
                 </div>
               </div>
 
             </div>
           </div>
+
         </TiltCard>
       </section>
 

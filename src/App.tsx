@@ -337,10 +337,7 @@ function App() {
               <Route path="/product/:category/:name" element={<ProductDetailPage />} />
               <Route path="/product/:id" element={<ProductDetailPage />} />
               <Route path="/cart" element={<CartPage />} />
-              <Route
-                path="/checkout"
-                element={user ? <CheckoutPage /> : <Navigate to="/login" state={{ redirect: '/checkout' }} replace />}
-              />
+              <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
               <Route path="/account" element={<UserAccountPage />} />
               <Route path="/gallery" element={<GalleryPage />} />

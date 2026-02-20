@@ -680,27 +680,59 @@ export default function CartPage() {
           </div>
         )}
 
-        {/* Suggestions */}
-        {suggested.length > 0 && (
-          <div className="mt-14">
-            <h2 className="custom-heading text-center mb-8">
-              You may also <span style={{ color: '#14b8a6' }}>like</span>
-            </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-              {suggested.map((product) => (
-                <div key={product.id} className="premium-card-glow p-2 hover-lift">
-                  <div className="aspect-square overflow-hidden curved-lg bg-gray-100">
-                    <ImageWithFallback src={product.image} alt={product.name} loading="lazy" decoding="async" className="w-full h-full object-cover" />
+       {/* ---------------- SUGGESTIONS ---------------- */}
+{suggested.length > 0 && (
+  <div className="mt-14">
+    <h2 className="custom-heading text-center mb-8">
+      You may also <span style={{ color: '#14b8a6' }}>like</span>
+    </h2>
+
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+      {suggested
+        .filter(p => p && p.id) // Ensure only valid products
+        .map(product => {
+          const price = product.price ?? 0;
+          const image = product.image || '';
+
+          return (
+            <div
+              key={product.id}
+              className="premium-card-glow p-2 hover-lift cursor-pointer relative group"
+              onClick={() => navigate(`/product/${product.id}`)}
+            >
+              {/* Product Image */}
+              <div className="aspect-square overflow-hidden curved-lg bg-gray-100 relative">
+                {image ? (
+                  <ImageWithFallback
+                    src={image}
+                    alt={product.name}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+                    No Image
                   </div>
-                  <div className="pt-3">
-                    <p className="text-sm" style={{ color: '#64748b' }}>{product.category || 'Frame'}</p>
-                    <h3 className="text-base font-semibold" style={{ color: '#1f2937' }}>{product.name}</h3>
-                  </div>
+                )}
+
+                {/* Price badge on hover */}
+                <div className="absolute bottom-2 left-2 bg-teal-500 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                  ₹{price.toLocaleString('en-IN')}
                 </div>
-              ))}
+              </div>
+
+              {/* Product Info */}
+              <div className="pt-3">
+                <p className="text-sm text-gray-500">{product.category || 'Frame'}</p>
+                <h3 className="text-base font-semibold text-gray-800">{product.name}</h3>
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })}
+    </div>
+  </div>
+)}
 
       </div>
 

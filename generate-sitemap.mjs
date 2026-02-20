@@ -1,13 +1,37 @@
-import { SitemapStream, streamToPromise } from 'sitemap';
-import { writeFileSync } from 'fs';
+import { SitemapStream, streamToPromise } from 'sitemap'
+import { writeFileSync } from 'fs'
 
-const sitemap = new SitemapStream({ hostname: 'https://decorizz.com' });
+const baseUrl = 'https://decorizz.com'
 
-sitemap.write({ url: '/', changefreq: 'daily', priority: 1.0 });
-sitemap.write({ url: '/shop', changefreq: 'daily', priority: 0.9 });
+const sitemap = new SitemapStream({ hostname: baseUrl })
 
-sitemap.end();
+const today = new Date().toISOString()
+
+// 🔹 Static Pages
+const pages = [
+  { url: '/', changefreq: 'daily', priority: 1.0 },
+  { url: '/shop', changefreq: 'daily', priority: 0.9 },
+  { url: '/spiritual-art-gallery', changefreq: 'weekly', priority: 0.8 },
+  { url: '/new-art-gallery', changefreq: 'weekly', priority: 0.8 },
+  { url: '/acrylic-art-gallery', changefreq: 'weekly', priority: 0.8 },
+  { url: '/decor-by-room', changefreq: 'weekly', priority: 0.8 },
+  { url: '/lighting', changefreq: 'weekly', priority: 0.8 },
+  { url: '/about', changefreq: 'monthly', priority: 0.6 },
+  { url: '/contact', changefreq: 'monthly', priority: 0.6 }
+]
+
+pages.forEach(page => {
+  sitemap.write({
+    url: page.url,
+    changefreq: page.changefreq,
+    priority: page.priority,
+    lastmod: today
+  })
+})
+
+sitemap.end()
 
 streamToPromise(sitemap).then(data => {
-  writeFileSync('./public/sitemap.xml', data.toString());
-});
+  writeFileSync('./public/sitemap.xml', data.toString())
+  console.log(' Sitemap generated successfully!')
+})

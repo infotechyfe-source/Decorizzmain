@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
-import { CreditCard, Smartphone, Wallet } from 'lucide-react';
+import { CreditCard, Wallet } from 'lucide-react';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import { optimizeImage } from '../utils/optimizeImage';
 import { AuthContext } from '../context/AuthContext';
@@ -14,7 +14,6 @@ export default function CheckoutPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { coupon, discountAmount: passedDiscount } = location.state || {};
-
   const { user, accessToken } = useContext(AuthContext);
 
   const [cart, setCart] = useState<any>(null);
@@ -34,60 +33,53 @@ export default function CheckoutPage() {
     couponCode: '',
   });
 
+  const getAuthHeaders = () => {
+    if (user?.accessToken) {
+      return { Authorization: `Bearer ${accessToken}` };
+    }
+    return {};
+  };
+
   useEffect(() => {
-    if (!user) {
+    const buyNowProduct = location.state?.buyNowProduct;
+    if (!user && !buyNowProduct) {
       navigate('/login');
       return;
     }
-    fetchCart();
-  }, [user]);
+    if (buyNowProduct) {
+      setCart({ items: [buyNowProduct] });
+      setProducts([buyNowProduct]);
+      setLoading(false);
+    } else {
+      fetchCart();
+    }
+  }, [user, location.state]);
 
-  // META InitiateCheckout Event
   useEffect(() => {
-    if (
-      cart &&
-      cart.items &&
-      cart.items.length > 0 &&
-      typeof window !== "undefined" &&
-      (window as any).fbq
-    ) {
-      const subtotal = getCartTotal();
-
+    if (cart?.items?.length && typeof window !== 'undefined' && (window as any).fbq) {
       (window as any).fbq('track', 'InitiateCheckout', {
-        value: subtotal,
+        value: getCartTotal(),
         currency: 'INR',
-        num_items: cart.items.length
+        num_items: cart.items.length,
       });
     }
   }, [cart]);
-
 
   const fetchCart = async () => {
     try {
       const cartRes = await fetch(
         `https://${projectId}.supabase.co/functions/v1/make-server-52d68140/cart`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
+        { headers: getAuthHeaders() }
       );
       const cartData = await cartRes.json();
-
-      // Filter out invalid items (no productId or quantity <= 0) to ensure clean checkout
-      if (cartData.cart && cartData.cart.items) {
+      if (cartData.cart?.items) {
         cartData.cart.items = cartData.cart.items.filter((item: any) => item.productId && item.quantity > 0);
       }
-
       setCart(cartData.cart);
 
       const productsRes = await fetch(
         `https://${projectId}.supabase.co/functions/v1/make-server-52d68140/products`,
-        {
-          headers: {
-            Authorization: `Bearer ${publicAnonKey}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${publicAnonKey}` } }
       );
       const productsData = await productsRes.json();
       setProducts(productsData.products || []);
@@ -99,154 +91,76 @@ export default function CheckoutPage() {
   };
 
   const getCartTotal = () => {
-    if (!cart || !cart.items) return 0;
-
+    if (!cart?.items) return 0;
     return cart.items.reduce((total: number, item: any) => {
-      const price = item.price ?? (products.find(p => p.id === item.productId)?.price || 0);
+      const price = item.price ?? products.find(p => p.id === item.productId)?.price ?? 0;
       return total + price * item.quantity;
     }, 0);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const loadRazorpayScript = () => {
-    return new Promise((resolve) => {
+  const loadRazorpayScript = () =>
+    new Promise((resolve) => {
       const script = document.createElement('script');
       script.src = 'https://checkout.razorpay.com/v1/checkout.js';
       script.onload = () => resolve(true);
       script.onerror = () => resolve(false);
       document.body.appendChild(script);
     });
-  };
 
   const handleRazorpayPayment = async (orderData: any, totalAmount: number) => {
     const res = await loadRazorpayScript();
-
-    if (!res) {
-      toast.error('Razorpay SDK failed to load');
-      return false;
-    }
+    if (!res) return toast.error('Razorpay SDK failed to load');
 
     const options = {
       key: RAZORPAY_CONFIG.KEY_ID,
-      amount: totalAmount * 100, // Amount in paise
+      amount: totalAmount * 100,
       currency: 'INR',
       name: RAZORPAY_CONFIG.COMPANY_NAME,
-      description: 'Photo Frame Purchase',
+      description: 'Purchase',
       image: RAZORPAY_CONFIG.COMPANY_LOGO,
-      handler: async function (response: any) {
-        // Payment successful - Show loader
+      handler: async (response: any) => {
         setProcessing(true);
         toast.loading('Processing your order...');
-        console.log('Payment successful:', response);
-
         try {
-          // Create order with payment details
-          const finalOrderData = {
-            ...orderData,
-            paymentStatus: 'completed',
-            paymentId: response.razorpay_payment_id,
-            paymentSignature: response.razorpay_signature,
-          };
-
+          const finalOrderData = { ...orderData, paymentStatus: 'completed', paymentId: response.razorpay_payment_id, paymentSignature: response.razorpay_signature };
           const orderResponse = await fetch(
             `https://${projectId}.supabase.co/functions/v1/make-server-52d68140/orders`,
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${accessToken}`,
-              },
-              body: JSON.stringify(finalOrderData),
-            }
+            { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify(finalOrderData) }
           );
 
           if (orderResponse.ok) {
             const data = await orderResponse.json();
-
-            // Create payment record
-            await fetch(
-              `https://${projectId}.supabase.co/functions/v1/make-server-52d68140/payments`,
-              {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  Authorization: `Bearer ${accessToken}`,
-                },
-                body: JSON.stringify({
-                  orderId: data.order.id,
-                  amount: totalAmount,
-                  paymentMethod: 'razorpay',
-                  paymentId: response.razorpay_payment_id,
-                  paymentSignature: response.razorpay_signature,
-                  status: 'completed',
-                }),
-              }
-            );
-
-            // Show success and navigate after delay
+            await fetch(`https://${projectId}.supabase.co/functions/v1/make-server-52d68140/payments`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+              body: JSON.stringify({ orderId: data.order.id, amount: totalAmount, paymentMethod: 'razorpay', paymentId: response.razorpay_payment_id, paymentSignature: response.razorpay_signature, status: 'completed' }),
+            });
             toast.dismiss();
             toast.success('Payment successful! Redirecting...');
-            //META Purchase Event
-            if (typeof window !== "undefined" && (window as any).fbq) {
-              (window as any).fbq('track', 'Purchase', {
-                value: totalAmount,
-                currency: 'INR'
-              });
-            }
-
-            setTimeout(() => {
-              setProcessing(false);
-              navigate(`/order-success/${data.order.id}`);
-            }, 1500);
-          } else {
-            toast.dismiss();
-            toast.error('Failed to create order');
-            setProcessing(false);
-          }
+            if ((window as any).fbq) (window as any).fbq('track', 'Purchase', { value: totalAmount, currency: 'INR' });
+            setTimeout(() => { setProcessing(false); navigate(`/order-success/${data.order.id}`); }, 1500);
+          } else toast.error('Failed to create order');
         } catch (error) {
-          toast.dismiss();
           toast.error('Something went wrong');
-          setProcessing(false);
-        }
+        } finally { setProcessing(false); }
       },
-      prefill: {
-        name: formData.fullName,
-        email: formData.email,
-        contact: formData.phone,
-      },
-      theme: {
-        // 🔹 match site teal theme
-        color: RAZORPAY_CONFIG.THEME_COLOR,
-      },
-      modal: {
-        ondismiss: function () {
-          setProcessing(false);
-          toast.error("Payment cancelled");
-        },
-      },
+      prefill: { name: formData.fullName, email: formData.email, contact: formData.phone },
+      theme: { color: RAZORPAY_CONFIG.THEME_COLOR },
+      modal: { ondismiss: () => { setProcessing(false); toast.error('Payment cancelled'); } },
     };
 
-    const paymentObject = new (window as any).Razorpay(options);
-    paymentObject.open();
-    return true;
+    new (window as any).Razorpay(options).open();
   };
 
   const handleCodAdvancePayment = async (orderData: any, totalAmount: number) => {
     const res = await loadRazorpayScript();
+    if (!res) return toast.error('Razorpay SDK failed to load');
 
-    if (!res) {
-      toast.error('Razorpay SDK failed to load');
-      return false;
-    }
-
-    const advanceAmount = Number((totalAmount * 0.10).toFixed(0));
-
+    const advanceAmount = Number((totalAmount * 0.1).toFixed(0));
     const options = {
       key: RAZORPAY_CONFIG.KEY_ID,
       amount: advanceAmount * 100,
@@ -254,101 +168,39 @@ export default function CheckoutPage() {
       name: RAZORPAY_CONFIG.COMPANY_NAME,
       description: 'COD Advance (10%)',
       image: RAZORPAY_CONFIG.COMPANY_LOGO,
-      handler: async function (response: any) {
+      handler: async (response: any) => {
         setProcessing(true);
         toast.loading('Recording advance payment...');
-
         try {
-          const finalOrderData = {
-            ...orderData,
-            paymentStatus: 'partial',
-            paymentMethod: 'cod',
-            paymentId: response.razorpay_payment_id,
-            paymentSignature: response.razorpay_signature,
-          };
-
-          const orderResponse = await fetch(
-            `https://${projectId}.supabase.co/functions/v1/make-server-52d68140/orders`,
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${accessToken}`,
-              },
-              body: JSON.stringify(finalOrderData),
-            }
-          );
-
+          const finalOrderData = { ...orderData, paymentStatus: 'partial', paymentMethod: 'cod', paymentId: response.razorpay_payment_id, paymentSignature: response.razorpay_signature };
+          const orderResponse = await fetch(`https://${projectId}.supabase.co/functions/v1/make-server-52d68140/orders`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify(finalOrderData) });
           if (orderResponse.ok) {
             const data = await orderResponse.json();
-
-            await fetch(
-              `https://${projectId}.supabase.co/functions/v1/make-server-52d68140/payments`,
-              {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  Authorization: `Bearer ${accessToken}`,
-                },
-                body: JSON.stringify({
-                  orderId: data.order.id,
-                  amount: advanceAmount,
-                  paymentMethod: 'razorpay_cod_advance',
-                  paymentId: response.razorpay_payment_id,
-                  paymentSignature: response.razorpay_signature,
-                  status: 'completed',
-                }),
-              }
-            );
-
+            await fetch(`https://${projectId}.supabase.co/functions/v1/make-server-52d68140/payments`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+              body: JSON.stringify({ orderId: data.order.id, amount: advanceAmount, paymentMethod: 'razorpay_cod_advance', paymentId: response.razorpay_payment_id, paymentSignature: response.razorpay_signature, status: 'completed' }),
+            });
             toast.dismiss();
             toast.success('Advance paid. Remaining payable at delivery.');
-            //META Purchase Event for COD Advance
-            if (typeof window !== "undefined" && (window as any).fbq) {
-              (window as any).fbq('track', 'Purchase', {
-                value: advanceAmount,
-                currency: 'INR'
-              });
-            }
-
-            setTimeout(() => {
-              setProcessing(false);
-              navigate(`/order-success/${data.order.id}`);
-            }, 1500);
-          } else {
-            toast.dismiss();
-            toast.error('Failed to create order');
-            setProcessing(false);
-          }
+            if ((window as any).fbq) (window as any).fbq('track', 'Purchase', { value: advanceAmount, currency: 'INR' });
+            setTimeout(() => { setProcessing(false); navigate(`/order-success/${data.order.id}`); }, 1500);
+          } else toast.error('Failed to create order');
         } catch (error) {
-          toast.dismiss();
           toast.error('Something went wrong');
-          setProcessing(false);
-        }
+        } finally { setProcessing(false); }
       },
-      prefill: {
-        name: formData.fullName,
-        email: formData.email,
-        contact: formData.phone,
-      },
+      prefill: { name: formData.fullName, email: formData.email, contact: formData.phone },
       theme: { color: RAZORPAY_CONFIG.THEME_COLOR },
-      modal: {
-        ondismiss: function () {
-          setProcessing(false);
-          toast.error("Payment cancelled");
-        },
-      },
+      modal: { ondismiss: () => { setProcessing(false); toast.error('Payment cancelled'); } },
     };
 
-    const paymentObject = new (window as any).Razorpay(options);
-    paymentObject.open();
-    return true;
+    new (window as any).Razorpay(options).open();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!formData.fullName || !formData.phone || !formData.address || !formData.city || !formData.state || !formData.zipCode) {
+    if (!formData.fullName || !formData.phone || !formData.address || !formData.city || !formData.state || !formData.zipCode || (!user && !formData.email)) {
       toast.error('Please fill in all required fields');
       return;
     }
@@ -364,69 +216,32 @@ export default function CheckoutPage() {
       const orderData = {
         items: cart.items.map((item: any) => {
           const product = products.find(p => p.id === item.productId);
-          return {
-            productId: item.productId,
-            productName: item.name || product?.name,
-            quantity: item.quantity,
-            size: item.size,
-            color: item.color,
-            format: item.format,
-            frameColor: item.frameColor,
-            subsection: item.subsection,
-            price: item.price ?? product?.price,
-            // Include custom canvas data for vendor
-            customImage: item.customImage || undefined,
-            customInstructions: item.customInstructions || undefined,
-            customArtStyle: item.customArtStyle || undefined,
-          };
+          return { productId: item.productId, productName: item.name || product?.name, quantity: item.quantity, size: item.size, color: item.color, format: item.format, frameColor: item.frameColor, subsection: item.subsection, price: item.price ?? product?.price, customImage: item.customImage, customInstructions: item.customInstructions, customArtStyle: item.customArtStyle };
         }),
-        shippingAddress: {
-          fullName: formData.fullName,
-          phone: formData.phone,
-          address: formData.address,
-          city: formData.city,
-          state: formData.state,
-          zipCode: formData.zipCode,
-        },
+        shippingAddress: { fullName: formData.fullName, email: formData.email, phone: formData.phone, address: formData.address, city: formData.city, state: formData.state, zipCode: formData.zipCode },
         paymentMethod: formData.paymentMethod,
-
-        subtotal,
-        shipping,
-        discount,
-        couponCode: coupon?.coupon_code,
-        total,
+        subtotal, shipping, discount, couponCode: coupon?.coupon_code, total,
+        userType: user ? 'registered' : 'guest',
       };
 
-      // Handle different payment methods
-      if (formData.paymentMethod === 'razorpay') {
-        await handleRazorpayPayment(orderData, total);
-      } else if (formData.paymentMethod === 'cod') {
-        await handleCodAdvancePayment(orderData, total);
-      }
+      if (formData.paymentMethod === 'razorpay') await handleRazorpayPayment(orderData, total);
+      else if (formData.paymentMethod === 'cod') await handleCodAdvancePayment(orderData, total);
     } catch (error) {
       console.error('Checkout error:', error);
       toast.error('Failed to place order');
-    } finally {
-      if (formData.paymentMethod !== 'razorpay' && formData.paymentMethod !== 'cod') {
-        setProcessing(false);
-      }
+      setProcessing(false);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen content-offset">
-        <Navbar />
-        <div className="flex justify-center items-center h-96">
-          <div
-            className="animate-spin rounded-full h-12 w-12 border-b-2"
-            style={{ borderColor: '#14b8a6' }}
-          ></div>
-        </div>
-        <Footer />
+  if (loading)
+    return
+  <div className="min-h-screen content-offset"><Navbar />
+    <div className="flex justify-center items-center h-96">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: '#14b8a6' }}>
       </div>
-    );
-  }
+    </div>
+    <Footer />
+  </div>;
 
   const subtotal = getCartTotal();
   const shippingCost = 49;
@@ -568,6 +383,24 @@ export default function CheckoutPage() {
                   Shipping Information
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                  {/* Guest Email Field */}
+                  {!user && (
+                    <div className="md:col-span-2">
+                      <label className="block mb-2" style={{ color: '#4b5563' }}>
+                        Email *
+                      </label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        required
+                        className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#14b8a6]"
+                        style={{ borderColor: '#e5e7eb', backgroundColor: '#ffffff', color: '#1f2937' }}
+                      />
+                    </div>
+                  )}
                   <div>
                     <label className="block mb-2" style={{ color: '#4b5563' }}>
                       Full Name *

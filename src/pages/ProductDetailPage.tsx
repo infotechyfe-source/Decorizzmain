@@ -116,7 +116,7 @@ export default function ProductDetailPage() {
 
   const [neonOn, setNeonOn] = useState(true);
   const [neonText, setNeonText] = useState('Text');
-  const [neonSize, setNeonSize] = useState<string>('24');
+  const [neonSize, setNeonSize] = useState<string>('12');
   const [neonSizeLabel, setNeonSizeLabel] = useState('8" x 30"');
   const [neonLightMode, setNeonLightMode] = useState<'NORMAL' | 'RGB'>('NORMAL');
   const [neonWidth, setNeonWidth] = useState(30);
@@ -777,11 +777,6 @@ export default function ProductDetailPage() {
   };
 
   const handleBuyNow = async () => {
-    if (!user) {
-      toast.error('Please login to buy');
-      return;
-    }
-
     if (!isNeon && !selectedSize && !isCustomSize) {
       toast.error('Please select size');
       return;
@@ -790,7 +785,6 @@ export default function ProductDetailPage() {
       toast.error('Please select color');
       return;
     }
-    // Require image upload for custom canvas products
     if (product?.isCustomCanvas && !customFile?.dataUrl) {
       toast.error('Please upload an image for your custom canvas');
       return;
@@ -798,50 +792,40 @@ export default function ProductDetailPage() {
 
     try {
       const previewURL = isNeon ? await generateNeonPreview() : activeImage;
-      const response = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/make-server-52d68140/cart`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify({
-            productId: product?.id || id,
-            quantity,
-            size: isNeon ? neonSizeLabel : (isCustomSize ? `${customWidth}X${customHeight}` : selectedSize),
-            color: (selectedFormat === 'Frame' || isAcrylic || islighting) ? selectedColor : undefined,
-            format: selectedFormat,
-            frameColor: selectedFormat === 'Frame' ? selectedColor : undefined,
-            price: price,
-            subsection: product?.subsection,
-            name: isNeon ? `Custom Neon - ${neonText}` : product?.name,
-            image: product?.isCustomCanvas && customFile?.dataUrl ? customFile.dataUrl : previewURL,
-            customInstructions: customInstructions || undefined,
-            customImage: product?.isCustomCanvas ? customFile?.dataUrl : undefined,
-            customArtStyle: product?.isCustomCanvas ? selectedArtStyle : undefined,
-            customNeon: isNeon ? {
-              text: neonText,
-              size: neonSizeLabel,
-              width: neonWidth,
-              height: neonHeight,
-              lightMode: neonLightMode,
-              color: neonColor,
-              font: neonFont,
-              backboard: neonBackboard,
-              on: neonOn,
-              previewURL
-            } : undefined,
-          }),
-        }
-      );
 
-      if (response.ok) {
-        cartEvents.emit();
-        navigate('/checkout');
-      } else {
-        toast.error('Failed to proceed to checkout');
-      }
+      // Construct the product object to pass to checkout
+      const buyNowProduct = {
+        productId: product?.id || id,
+        quantity,
+        size: isNeon ? neonSizeLabel : (isCustomSize ? `${customWidth}X${customHeight}` : selectedSize),
+        color: (selectedFormat === 'Frame' || isAcrylic || islighting) ? selectedColor : undefined,
+        format: selectedFormat,
+        frameColor: selectedFormat === 'Frame' ? selectedColor : undefined,
+        price: price,
+        subsection: product?.subsection,
+        name: isNeon ? `Custom Neon - ${neonText}` : product?.name,
+        image: product?.isCustomCanvas && customFile?.dataUrl ? customFile.dataUrl : previewURL,
+        customInstructions: customInstructions || undefined,
+        customImage: product?.isCustomCanvas ? customFile?.dataUrl : undefined,
+        customArtStyle: product?.isCustomCanvas ? selectedArtStyle : undefined,
+        customNeon: isNeon
+          ? {
+            text: neonText,
+            size: neonSizeLabel,
+            width: neonWidth,
+            height: neonHeight,
+            lightMode: neonLightMode,
+            color: neonColor,
+            font: neonFont,
+            backboard: neonBackboard,
+            on: neonOn,
+            previewURL,
+          }
+          : undefined,
+      };
+
+      // Navigate to checkout with product data
+      navigate('/checkout', { state: { buyNowProduct } });
     } catch (error) {
       console.error('Buy now error:', error);
       toast.error('Failed to proceed to checkout');

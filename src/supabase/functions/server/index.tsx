@@ -289,7 +289,6 @@ app.get('/make-server-52d68140/users', async (c) => {
   }
 });
 
-
 // Products Routes
 app.get('/make-server-52d68140/products', async (c) => {
   try {
@@ -525,7 +524,6 @@ app.get('/make-server-52d68140/products/:id', async (c) => {
     return c.json({ error: 'Failed to fetch product' }, 500);
   }
 });
-
 
 // Cloudinary credentials
 const CLOUDINARY_CLOUD_NAME = 'dxpabpzkf';
@@ -1114,8 +1112,6 @@ app.post('/make-server-52d68140/gallery', async (c) => {
   }
 });
 
-
-
 app.delete('/make-server-52d68140/gallery/:id', async (c) => {
   try {
     const user = await verifyAuth(c.req.raw);
@@ -1493,7 +1489,6 @@ app.delete('/make-server-52d68140/gallery/:id', async (c) => {
     return c.json({ error: "Failed to delete" }, 500);
   }
 });
-
 
 Deno.serve(app.fetch);// Add these routes before Deno.serve(app.fetch); in index.tsx
 
